@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { X, Heart } from 'lucide-react'
 import { coupleMessage } from '../data/content'
 
-export default function CoupleMessageModal() {
+export default function CoupleMessageModal({ onClose }) {
   const [open, setOpen] = useState(false)
 
   useEffect(() => {
@@ -11,8 +11,6 @@ export default function CoupleMessageModal() {
     return () => clearTimeout(timer)
   }, [])
 
-  // Lock page scroll while the popup is showing so there's no ambiguity
-  // between "tap to dismiss" and "drag to scroll" behind it
   useEffect(() => {
     document.body.style.overflow = open ? 'hidden' : ''
     return () => {
@@ -22,6 +20,7 @@ export default function CoupleMessageModal() {
 
   const handleClose = () => {
     setOpen(false)
+    onClose?.()
   }
 
   return (
@@ -32,8 +31,6 @@ export default function CoupleMessageModal() {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.2 }}
-          // pointerEvents is set directly, not animated — this makes it
-          // toggle instantly instead of lagging behind the fade transition
           style={{ pointerEvents: open ? 'auto' : 'none' }}
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-6"
           onClick={handleClose}
