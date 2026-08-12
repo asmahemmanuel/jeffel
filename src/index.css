@@ -26,12 +26,16 @@ html {
   margin: 0;
   padding: 0;
   scroll-behavior: smooth;
+  height: 100%;
 }
 
 body {
   margin: 0;
   padding: 0;
-  @apply font-body text-emerald-green bg-off-white overflow-x-hidden;
+  @apply font-body text-emerald-green bg-off-white;
+  overflow-x: hidden;
+  min-height: 100%;
+  -webkit-overflow-scrolling: touch;
 }
 
 h1, h2, h3, h4 {

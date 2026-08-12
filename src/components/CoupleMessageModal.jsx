@@ -7,26 +7,11 @@ export default function CoupleMessageModal() {
   const [open, setOpen] = useState(false)
 
   useEffect(() => {
-    // Shows every time the page loads/refreshes
-    const timer = setTimeout(() => {
-      setOpen(true)
-      // Lock background scrolling and mobile touch actions
-      document.body.style.overflow = 'hidden'
-      document.body.style.touchAction = 'none'
-    }, 600)
-    
-    return () => {
-      clearTimeout(timer)
-      // Safety cleanup
-      document.body.style.overflow = ''
-      document.body.style.touchAction = ''
-    }
+    const timer = setTimeout(() => setOpen(true), 400)
+    return () => clearTimeout(timer)
   }, [])
 
   const handleClose = () => {
-    // Instantly unlock scroll engines before animation finishes
-    document.body.style.overflow = '' 
-    document.body.style.touchAction = ''
     setOpen(false)
   }
 
@@ -36,8 +21,7 @@ export default function CoupleMessageModal() {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1, pointerEvents: 'auto' }}
-          // THIS IS THE FIX: Instantly let touches pass through the fading overlay
-          exit={{ opacity: 0, pointerEvents: 'none' }} 
+          exit={{ opacity: 0, pointerEvents: 'none' }}
           transition={{ duration: 0.2 }}
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-6"
           onClick={handleClose}
@@ -46,7 +30,7 @@ export default function CoupleMessageModal() {
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            transition={{ duration: 0.2, ease: 'easeOut' }} // Sped up the exit animation
+            transition={{ duration: 0.2, ease: 'easeOut' }}
             onClick={(e) => e.stopPropagation()}
             className="relative bg-off-white rounded-2xl max-w-md w-full p-8 text-center shadow-2xl border border-curry-gold/30"
           >
