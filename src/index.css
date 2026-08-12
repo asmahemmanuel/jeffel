@@ -17,22 +17,50 @@
   --animate-fade-up: fadeUp 0.8s ease-out forwards;
 
   @keyframes fadeUp {
-    0% { opacity: 0; transform: translateY(24px); }
-    100% { opacity: 1; transform: translateY(0); }
+    0% {
+      opacity: 0;
+      transform: translateY(24px);
+    }
+
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 }
+
+
+/* =========================================================
+   DOCUMENT / PAGE SCROLLING
+   ========================================================= */
 
 html {
   margin: 0;
   padding: 0;
+
   -webkit-tap-highlight-color: transparent;
+
   width: 100%;
-  height: 100%;
-  /* Re-enabled the vertical scrollbar for the page */
-  overflow-y: scroll;
+  min-height: 100%;
+
+  /*
+    Keep the browser's native document scrolling.
+    Do NOT use overflow-x:hidden here because it can
+    create an additional scrolling context in some browsers.
+  */
+  overflow-y: auto;
+  overflow-x: clip;
+
   scrollbar-width: auto;
   -ms-overflow-style: auto;
+
+  scroll-behavior: smooth;
 }
+
+
+/* =========================================================
+   SCROLLBAR
+   ========================================================= */
 
 html::-webkit-scrollbar {
   display: block;
@@ -48,52 +76,85 @@ html::-webkit-scrollbar-thumb {
   border-radius: 4px;
 }
 
-/* Hide scrollbars on all inner/nested elements, keeping only the main html scrollbar */
-*, *:before, *:after {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+
+/* =========================================================
+   GLOBAL BOX SIZING
+   ========================================================= */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
-*::-webkit-scrollbar {
-  display: none;
-}
 
-/* Explicitly re-enable scrollbar rules for the html element */
-html, html * {
-  -webkit-overflow-scrolling: touch;
-}
-
-html {
-  scrollbar-width: auto;
-  -ms-overflow-style: auto;
-}
-
-html::-webkit-scrollbar {
-  display: block;
-  width: 8px;
-}
+/* =========================================================
+   BODY
+   ========================================================= */
 
 body {
   margin: 0;
   padding: 0;
+
   @apply font-body text-emerald-green bg-off-white;
-  overflow-x: hidden;
+
   width: 100%;
   min-height: 100%;
-  
-  /* Enforce pure native GPU hardware scrolling without layout-thrashing constraints */
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior: auto;
+
+  /*
+    Prevent horizontal overflow without creating
+    another vertical scrolling container.
+  */
+  overflow-x: clip;
+  overflow-y: visible;
+
+  overscroll-behavior-y: auto;
 }
 
-/* Bypass touch delays on interactive elements */
-button, a, input, label {
+
+/* =========================================================
+   ROOT
+   ========================================================= */
+
+#root {
+  width: 100%;
+  min-height: 100vh;
+
+  /*
+    Prevent horizontal overflow while keeping the
+    browser document as the only vertical scroll container.
+  */
+  overflow-x: clip;
+}
+
+
+/* =========================================================
+   INTERACTIVE ELEMENTS
+   ========================================================= */
+
+button,
+a,
+input,
+label {
   touch-action: manipulation;
 }
 
-h1, h2, h3, h4 {
+
+/* =========================================================
+   HEADINGS
+   ========================================================= */
+
+h1,
+h2,
+h3,
+h4 {
   @apply font-display;
 }
+
+
+/* =========================================================
+   TEXT SELECTION
+   ========================================================= */
 
 ::selection {
   background-color: var(--color-emerald-green);

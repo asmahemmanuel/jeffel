@@ -14,7 +14,7 @@ export default function App() {
 
   return (
     <main
-      className={`relative w-full min-h-screen flex flex-col overflow-x-hidden ${
+      className={`relative w-full min-h-screen flex flex-col overflow-x-clip ${
         !animationsReady ? 'pause-animations' : ''
       }`}
     >
@@ -29,7 +29,10 @@ export default function App() {
               padding: '12px 24px',
               borderRadius: '8px',
             },
-            iconTheme: { primary: '#F8F3E7', secondary: '#006B3C' },
+            iconTheme: {
+              primary: '#F8F3E7',
+              secondary: '#006B3C',
+            },
           },
         }}
       />

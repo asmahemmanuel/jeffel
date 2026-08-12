@@ -19,8 +19,9 @@ export default function OurStory() {
       </div>
 
       <ScrollReveal animation="animate-fade-in">
-        <p className="text-center text-curry-gold font-sans tracking-widest uppercase text-sm mt-10">
-          {ourStory.closingTag}
+        {/* Removed the 'uppercase' class and added .replace() to enforce mixed casing */}
+        <p className="text-center text-curry-gold font-sans tracking-widest text-sm mt-10">
+          {ourStory.closingTag.replace(/THEJEFFELCHAPTER/g, 'TheJeffELChapter')}
         </p>
       </ScrollReveal>
     </section>

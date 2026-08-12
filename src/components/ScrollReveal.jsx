@@ -10,27 +10,38 @@ export default function ScrollReveal({
   const ref = useRef(null)
 
   useEffect(() => {
+    const node = ref.current
+
+    if (!node) return
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
           setIsVisible(true)
-          observer.unobserve(entry.target) // fires once, then stops watching
+
+          // We only need to detect the element once.
+          observer.unobserve(entry.target)
         }
       },
-      { threshold: 0.1, rootMargin: '0px 0px -50px 0px' }
+      {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px',
+      }
     )
 
-    if (ref.current) observer.observe(ref.current)
+    observer.observe(node)
 
     return () => {
-      if (ref.current) observer.disconnect()
+      observer.disconnect()
     }
   }, [])
 
   return (
     <div
       ref={ref}
-      className={`${className} ${isVisible ? animation : 'opacity-0'}`}
+      className={`${className} ${
+        isVisible ? animation : 'opacity-0'
+      }`}
       style={style}
     >
       {children}

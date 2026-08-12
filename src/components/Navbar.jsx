@@ -22,6 +22,7 @@ export default function Navbar() {
 
   useEffect(() => {
     document.body.style.overflow = open ? 'hidden' : ''
+
     return () => {
       document.body.style.overflow = ''
     }
@@ -38,14 +39,25 @@ export default function Navbar() {
     // Section link: navigate home first if on another page, then scroll
     if (location.pathname !== '/') {
       navigate('/')
+
       setTimeout(() => {
         const el = document.querySelector(link.href)
-        if (el) el.scrollIntoView({ behavior: 'smooth' })
+
+        if (el) {
+          el.scrollIntoView({
+            behavior: 'smooth',
+          })
+        }
       }, 500)
     } else {
       setTimeout(() => {
         const el = document.querySelector(link.href)
-        if (el) el.scrollIntoView({ behavior: 'smooth' })
+
+        if (el) {
+          el.scrollIntoView({
+            behavior: 'smooth',
+          })
+        }
       }, 300)
     }
   }
@@ -76,7 +88,10 @@ export default function Navbar() {
               initial={{ x: '100%' }}
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
-              transition={{ duration: 0.4, ease: 'easeInOut' }}
+              transition={{
+                duration: 0.4,
+                ease: 'easeInOut',
+              }}
               className="fixed top-0 right-0 h-full w-full sm:w-[420px] bg-off-white z-50 shadow-2xl flex flex-col px-8 py-8 overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
             >
               <button
@@ -86,17 +101,6 @@ export default function Navbar() {
               >
                 <X className="w-5 h-5" />
               </button>
-
-              <h2 className="text-3xl font-display text-emerald-green mb-2">
-                {couple.partnerOne} &amp; {couple.partnerTwo}
-              </h2>
-              
-              {/* Top Hashtags */}
-              <div className="flex flex-wrap gap-x-3 gap-y-1 mb-10 text-emerald-green/70 font-sans text-sm">
-                <p>{couple.hashtag}</p>
-                <p>#ThisIsForever</p>
-                <p>#TheInseparable2</p>
-              </div>
 
               <nav className="flex flex-col gap-7">
                 {navLinks.map((link) => (
@@ -118,7 +122,7 @@ export default function Navbar() {
                   loading="lazy"
                   decoding="async"
                 />
-                
+
                 {/* Bottom Hashtags */}
                 <div className="flex flex-wrap justify-center gap-x-3 gap-y-1 text-emerald-green/70 font-sans text-sm">
                   <p>{couple.hashtag}</p>

@@ -5,12 +5,11 @@ import App from './App.jsx'
 import './index.css'
 
 // One-time cleanup: remove the old localStorage gallery data left over
-// from before the Firebase migration. This was being parsed on every
-// page load and was the actual cause of the "stuck after refresh" scroll issue.
+// from before the Firebase migration.
 try {
   localStorage.removeItem('jeffel-gallery-photos')
 } catch {
-  // ignore
+  // Ignore localStorage errors
 }
 
 ReactDOM.createRoot(document.getElementById('root')).render(

@@ -70,7 +70,8 @@ export default function Hero() {
         className="relative z-10 text-center py-14 px-6 bg-off-white"
         style={{ touchAction: 'pan-y' }}
       >
-        <p className="uppercase tracking-[0.3em] text-emerald-green text-sm font-sans mb-4">
+        {/* Removed 'uppercase' from the class list here */}
+        <p className="tracking-[0.3em] text-emerald-green text-sm font-sans mb-4">
           {couple.hashtag}
         </p>
         <h1 className="text-4xl md:text-6xl text-emerald-green mb-4">

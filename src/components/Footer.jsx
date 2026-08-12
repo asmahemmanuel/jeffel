@@ -9,7 +9,7 @@ export default function Footer() {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: false, amount: 0.5 }}
       transition={{ duration: 0.6 }}
-      className="bg-off-white py-16 px-6 text-center"
+      className="bg-off-white py-16 px-6 text-center flex flex-col items-center"
     >
       <motion.img
         src={rings}
@@ -28,18 +28,26 @@ export default function Footer() {
       
       {/* Hashtags container grouped with flex and gap for clean wrapping */}
       <div className="flex flex-wrap justify-center gap-x-4 gap-y-2 mb-2">
-        <p className="text-curry-gold font-sans tracking-widest uppercase text-sm">
-          {couple.hashtag}
+        {/* Removed 'uppercase' class to preserve precise casing */}
+        <p className="text-curry-gold font-sans tracking-widest text-sm">
+          #TheJeffELChapter
         </p>
-        <p className="text-curry-gold font-sans tracking-widest uppercase text-sm">
+        <p className="text-curry-gold font-sans tracking-widest text-sm">
           #ThisIsForever
         </p>
-        <p className="text-curry-gold font-sans tracking-widest uppercase text-sm">
+        <p className="text-curry-gold font-sans tracking-widest text-sm">
           #TheInseparable2
         </p>
       </div>
 
-      <p className="text-emerald-green/60 font-sans text-sm">{couple.weddingDateLabel}</p>
+      <p className="text-emerald-green/60 font-sans text-sm mb-12">
+        {couple.weddingDateLabel}
+      </p>
+
+      {/* Powered By Branding */}
+      <p className="text-emerald-green/40 font-sans text-xs tracking-wide">
+        Powered by A.S Tech. World
+      </p>
     </motion.footer>
   )
 }
