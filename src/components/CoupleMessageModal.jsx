@@ -8,31 +8,50 @@ export default function CoupleMessageModal() {
 
   useEffect(() => {
     // Shows every time the page loads/refreshes
-    const timer = setTimeout(() => setOpen(true), 600)
-    return () => clearTimeout(timer)
+    const timer = setTimeout(() => {
+      setOpen(true)
+      // Lock background scrolling and mobile touch actions
+      document.body.style.overflow = 'hidden'
+      document.body.style.touchAction = 'none'
+    }, 600)
+    
+    return () => {
+      clearTimeout(timer)
+      // Safety cleanup
+      document.body.style.overflow = ''
+      document.body.style.touchAction = ''
+    }
   }, [])
+
+  const handleClose = () => {
+    // Instantly unlock scroll engines before animation finishes
+    document.body.style.overflow = '' 
+    document.body.style.touchAction = ''
+    setOpen(false)
+  }
 
   return (
     <AnimatePresence>
       {open && (
         <motion.div
           initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.3 }}
+          animate={{ opacity: 1, pointerEvents: 'auto' }}
+          // THIS IS THE FIX: Instantly let touches pass through the fading overlay
+          exit={{ opacity: 0, pointerEvents: 'none' }} 
+          transition={{ duration: 0.2 }}
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-6"
-          onClick={() => setOpen(false)}
+          onClick={handleClose}
         >
           <motion.div
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            transition={{ duration: 0.4, ease: 'easeOut' }}
+            transition={{ duration: 0.2, ease: 'easeOut' }} // Sped up the exit animation
             onClick={(e) => e.stopPropagation()}
             className="relative bg-off-white rounded-2xl max-w-md w-full p-8 text-center shadow-2xl border border-curry-gold/30"
           >
             <button
-              onClick={() => setOpen(false)}
+              onClick={handleClose}
               aria-label="Close message"
               className="absolute top-4 right-4 text-emerald-green/60 hover:text-emerald-green transition-colors"
             >
@@ -50,7 +69,7 @@ export default function CoupleMessageModal() {
             </p>
 
             <button
-              onClick={() => setOpen(false)}
+              onClick={handleClose}
               className="mt-6 px-6 py-2 bg-emerald-green text-white rounded-full font-sans text-sm tracking-wide hover:bg-emerald-green/90 transition-colors"
             >
               Continue to the site

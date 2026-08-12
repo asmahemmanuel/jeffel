@@ -6,23 +6,28 @@ export default function Hero() {
   const [index, setIndex] = useState(0)
 
   useEffect(() => {
+    // Increased interval to 6 seconds for a slower, more graceful transition
     const timer = setInterval(() => {
       setIndex((prev) => (prev + 1) % heroImages.length)
-    }, 4000)
+    }, 6000)
     return () => clearInterval(timer)
   }, [])
 
   return (
-    <section className="relative w-full overflow-hidden">
-      <div className="relative w-full h-[60vh] md:h-[85vh] overflow-hidden">
+    <section className="relative w-full overflow-hidden" style={{ touchAction: 'pan-y' }}>
+      <div 
+        className="relative w-full h-[60vh] md:h-[85vh] overflow-hidden"
+        style={{ touchAction: 'pan-y' }}
+      >
         <AnimatePresence mode="sync">
           <motion.div
             key={heroImages[index].id}
-            initial={{ opacity: 0, x: 80 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -80 }}
-            transition={{ duration: 1, ease: 'easeInOut' }}
-            className="absolute inset-0"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 1.5, ease: 'easeInOut' }}
+            className="absolute inset-0 pointer-events-none"
+            style={{ touchAction: 'pan-y' }}
           >
             {heroImages[index].src ? (
               <img
@@ -45,7 +50,7 @@ export default function Hero() {
         </AnimatePresence>
 
         {/* Carousel Dots */}
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-10 pointer-events-auto">
           {heroImages.map((img, i) => (
             <button
               key={img.id}
@@ -64,6 +69,7 @@ export default function Hero() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.9, ease: 'easeOut' }}
         className="relative z-10 text-center py-14 px-6 bg-off-white"
+        style={{ touchAction: 'pan-y' }}
       >
         <p className="uppercase tracking-[0.3em] text-emerald-green text-sm font-sans mb-4">
           {couple.hashtag}
