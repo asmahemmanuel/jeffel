@@ -22,16 +22,16 @@ export default function CoupleMessageModal() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.15 }}
+          transition={{ duration: 0.15, ease: 'easeOut' }}
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 md:backdrop-blur-sm px-6"
           style={{ pointerEvents: open ? 'auto' : 'none' }}
           onClick={handleClose}
         >
           <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 10 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 10 }}
-            transition={{ duration: 0.2, ease: 'easeOut' }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15, ease: 'easeOut' }}
             onClick={(e) => e.stopPropagation()}
             className="relative bg-off-white rounded-2xl max-w-md w-full p-8 text-center shadow-2xl border border-curry-gold/30"
           >
