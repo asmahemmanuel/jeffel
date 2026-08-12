@@ -36,6 +36,8 @@ body {
   @apply font-body text-emerald-green bg-off-white;
   overflow-x: hidden;
   min-height: 100%;
+  
+  /* Forces native GPU-accelerated momentum scrolling on iOS & Android */
   -webkit-overflow-scrolling: touch;
   touch-action: pan-y;
   overscroll-behavior-y: auto;
