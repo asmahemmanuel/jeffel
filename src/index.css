@@ -22,16 +22,16 @@
   }
 }
 
-html,
-body {
+html {
   margin: 0;
   padding: 0;
-  overflow-x: hidden;
   scroll-behavior: smooth;
 }
 
 body {
-  @apply font-body text-emerald-green bg-off-white;
+  margin: 0;
+  padding: 0;
+  @apply font-body text-emerald-green bg-off-white overflow-x-hidden;
 }
 
 h1, h2, h3, h4 {

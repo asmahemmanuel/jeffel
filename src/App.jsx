@@ -14,7 +14,9 @@ export default function App() {
   const showModal = location.pathname === '/'
 
   return (
-    <main className="w-full overflow-x-hidden">
+    <main className="relative w-full min-h-screen flex flex-col overflow-x-hidden">
+      {/* Added min-h-screen, flex, and flex-col to fix mobile scroll sticking */}
+      
       <Toaster 
         position="top-center"
         toastOptions={{
@@ -38,11 +40,14 @@ export default function App() {
       {/* Conditionally render the pop-up */}
       {showModal && <CoupleMessageModal />}
       
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/gallery" element={<GalleryPage />} />
-        <Route path="/adminjeffel" element={<AdminPage />} />
-      </Routes>
+      {/* flex-grow ensures the routes take up proper space above the footer */}
+      <div className="flex-grow">
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/gallery" element={<GalleryPage />} />
+          <Route path="/adminjeffel" element={<AdminPage />} />
+        </Routes>
+      </div>
       
       <ScrollToTopButton />
     </main>
