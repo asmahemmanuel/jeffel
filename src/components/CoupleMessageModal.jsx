@@ -3,24 +3,16 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { X, Heart } from 'lucide-react'
 import { coupleMessage } from '../data/content'
 
-export default function CoupleMessageModal({ onClose }) {
+export default function CoupleMessageModal() {
   const [open, setOpen] = useState(false)
 
   useEffect(() => {
-    const timer = setTimeout(() => setOpen(true), 400)
+    const timer = setTimeout(() => setOpen(true), 300)
     return () => clearTimeout(timer)
   }, [])
 
-  useEffect(() => {
-    document.body.style.overflow = open ? 'hidden' : ''
-    return () => {
-      document.body.style.overflow = ''
-    }
-  }, [open])
-
   const handleClose = () => {
     setOpen(false)
-    onClose?.()
   }
 
   return (
@@ -30,15 +22,15 @@ export default function CoupleMessageModal({ onClose }) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.2 }}
+          transition={{ duration: 0.15 }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 md:backdrop-blur-sm px-6"
           style={{ pointerEvents: open ? 'auto' : 'none' }}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-6"
           onClick={handleClose}
         >
           <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            initial={{ opacity: 0, scale: 0.95, y: 10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+            exit={{ opacity: 0, scale: 0.95, y: 10 }}
             transition={{ duration: 0.2, ease: 'easeOut' }}
             onClick={(e) => e.stopPropagation()}
             className="relative bg-off-white rounded-2xl max-w-md w-full p-8 text-center shadow-2xl border border-curry-gold/30"
@@ -46,7 +38,7 @@ export default function CoupleMessageModal({ onClose }) {
             <button
               onClick={handleClose}
               aria-label="Close message"
-              className="absolute top-4 right-4 text-emerald-green/60 hover:text-emerald-green transition-colors"
+              className="absolute top-4 right-4 text-emerald-green/60 hover:text-emerald-green transition-colors p-2"
             >
               <X className="w-5 h-5" />
             </button>
@@ -63,7 +55,7 @@ export default function CoupleMessageModal({ onClose }) {
 
             <button
               onClick={handleClose}
-              className="mt-6 px-6 py-2 bg-emerald-green text-white rounded-full font-sans text-sm tracking-wide hover:bg-emerald-green/90 transition-colors"
+              className="mt-6 px-6 py-3 bg-emerald-green text-white rounded-full font-sans text-sm tracking-wide hover:bg-emerald-green/90 transition-colors shadow-md"
             >
               Continue to the site
             </button>

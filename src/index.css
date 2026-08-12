@@ -13,39 +13,21 @@
   --font-body: "Cormorant Garamond", serif;
   --font-sans: "Inter", sans-serif;
 
-  /* Reveal animations — plain CSS, same pattern as the reference site */
-  --animate-fade-in: fade-in 0.8s ease-out forwards;
-  --animate-slide-up: slide-up 0.8s ease-out forwards;
-  --animate-slide-left: slide-left 0.8s ease-out forwards;
-  --animate-slide-right: slide-right 0.8s ease-out forwards;
+  /* Animations */
+  --animate-fade-up: fadeUp 0.8s ease-out forwards;
 
-  @keyframes fade-in {
-    0% { opacity: 0; }
-    100% { opacity: 1; }
-  }
-
-  @keyframes slide-up {
-    0% { opacity: 0; transform: translateY(30px); }
+  @keyframes fadeUp {
+    0% { opacity: 0; transform: translateY(24px); }
     100% { opacity: 1; transform: translateY(0); }
-  }
-
-  @keyframes slide-left {
-    0% { opacity: 0; transform: translateX(-60px); }
-    100% { opacity: 1; transform: translateX(0); }
-  }
-
-  @keyframes slide-right {
-    0% { opacity: 0; transform: translateX(60px); }
-    100% { opacity: 1; transform: translateX(0); }
   }
 }
 
 html {
   margin: 0;
   padding: 0;
-  overflow-x: hidden;
-  /* No scroll-behavior: smooth, no overscroll tricks — native touch scroll,
-     untouched, is what makes the reference site feel instant */
+  scroll-behavior: smooth;
+  -webkit-tap-highlight-color: transparent;
+  height: 100%;
 }
 
 body {
@@ -53,6 +35,15 @@ body {
   padding: 0;
   @apply font-body text-emerald-green bg-off-white;
   overflow-x: hidden;
+  min-height: 100%;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  overscroll-behavior-y: auto;
+}
+
+/* Eliminate mobile tap delay and ensure instant touch-to-scroll response */
+button, a, input, label {
+  touch-action: manipulation;
 }
 
 h1, h2, h3, h4 {
@@ -64,24 +55,16 @@ h1, h2, h3, h4 {
   color: white;
 }
 
-/* Hide scrollbar — scoped to html/body only, NOT the universal selector. */
+/* Hide scrollbar everywhere, all browsers, while keeping scroll functional */
 html,
-body {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+body,
+* {
+  -ms-overflow-style: none;   /* IE and Edge */
+  scrollbar-width: none;      /* Firefox */
 }
 
 html::-webkit-scrollbar,
-body::-webkit-scrollbar {
-  display: none;
-}
-
-/* Pause and hide every scroll-reveal animation while the popup is open —
-   this is the reference site's exact technique for a jank-free first touch */
-.pause-animations .animate-fade-in,
-.pause-animations .animate-slide-up,
-.pause-animations .animate-slide-left,
-.pause-animations .animate-slide-right {
-  animation: none !important;
-  opacity: 0 !important;
+body::-webkit-scrollbar,
+*::-webkit-scrollbar {
+  display: none;              /* Chrome, Safari, Opera */
 }
