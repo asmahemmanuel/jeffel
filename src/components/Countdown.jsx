@@ -717,7 +717,7 @@ export default function Countdown() {
                   <Camera className="w-3.5 h-3.5 md:w-4 md:h-4 shrink-0" />
 
                   <span>
-                    Upload photos of yourself &amp; the couple
+                    Upload photos of yourself with the couple
                   </span>
                 </>
               )}
