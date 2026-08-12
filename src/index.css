@@ -26,7 +26,8 @@ html {
   margin: 0;
   padding: 0;
   scroll-behavior: smooth;
-  height: 100%;
+  overflow-x: hidden;
+  overscroll-behavior-y: contain;
 }
 
 body {
@@ -34,7 +35,6 @@ body {
   padding: 0;
   @apply font-body text-emerald-green bg-off-white;
   overflow-x: hidden;
-  min-height: 100%;
   -webkit-overflow-scrolling: touch;
 }
 
@@ -47,16 +47,16 @@ h1, h2, h3, h4 {
   color: white;
 }
 
-/* Hide scrollbar everywhere, all browsers, while keeping scroll functional */
+/* Hide scrollbar — scoped to html/body only, NOT the universal selector.
+   Applying this to every element (*) forces per-element scrollbar
+   recalculation and is a common cause of touch-scroll jank/freezing on mobile. */
 html,
-body,
-* {
-  -ms-overflow-style: none;   /* IE and Edge */
-  scrollbar-width: none;      /* Firefox */
+body {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 html::-webkit-scrollbar,
-body::-webkit-scrollbar,
-*::-webkit-scrollbar {
-  display: none;              /* Chrome, Safari, Opera */
+body::-webkit-scrollbar {
+  display: none;
 }
