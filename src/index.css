@@ -25,9 +25,9 @@
 html {
   margin: 0;
   padding: 0;
-  scroll-behavior: smooth;
   overflow-x: hidden;
   overscroll-behavior-y: contain;
+  /* scroll-behavior: smooth removed from here on purpose — see note below */
 }
 
 body {
@@ -47,9 +47,7 @@ h1, h2, h3, h4 {
   color: white;
 }
 
-/* Hide scrollbar — scoped to html/body only, NOT the universal selector.
-   Applying this to every element (*) forces per-element scrollbar
-   recalculation and is a common cause of touch-scroll jank/freezing on mobile. */
+/* Hide scrollbar — scoped to html/body only, NOT the universal selector. */
 html,
 body {
   -ms-overflow-style: none;

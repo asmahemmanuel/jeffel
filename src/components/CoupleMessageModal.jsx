@@ -11,6 +11,15 @@ export default function CoupleMessageModal() {
     return () => clearTimeout(timer)
   }, [])
 
+  // Lock page scroll while the popup is showing so there's no ambiguity
+  // between "tap to dismiss" and "drag to scroll" behind it
+  useEffect(() => {
+    document.body.style.overflow = open ? 'hidden' : ''
+    return () => {
+      document.body.style.overflow = ''
+    }
+  }, [open])
+
   const handleClose = () => {
     setOpen(false)
   }
@@ -20,10 +29,13 @@ export default function CoupleMessageModal() {
       {open && (
         <motion.div
           initial={{ opacity: 0 }}
-          animate={{ opacity: 1, pointerEvents: 'auto' }}
-          exit={{ opacity: 0, pointerEvents: 'none' }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
           transition={{ duration: 0.2 }}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-6"
+          // pointerEvents is set directly, not animated — this makes it
+          // toggle instantly instead of lagging behind the fade transition
+          style={{ pointerEvents: open ? 'auto' : 'none' }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-6"
           onClick={handleClose}
         >
           <motion.div

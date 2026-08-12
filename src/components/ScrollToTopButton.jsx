@@ -1,17 +1,25 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowUp } from 'lucide-react'
 
 export default function ScrollToTopButton() {
   const [visible, setVisible] = useState(false)
+  const ticking = useRef(false)
 
   useEffect(() => {
     const handleScroll = () => {
-      const scrolledToBottom =
-        window.innerHeight + window.scrollY >= document.body.offsetHeight - 100
-      setVisible(window.scrollY > 400 || scrolledToBottom)
+      if (ticking.current) return
+      ticking.current = true
+
+      requestAnimationFrame(() => {
+        const scrolledToBottom =
+          window.innerHeight + window.scrollY >= document.body.offsetHeight - 100
+        setVisible(window.scrollY > 400 || scrolledToBottom)
+        ticking.current = false
+      })
     }
-    window.addEventListener('scroll', handleScroll)
+
+    window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
