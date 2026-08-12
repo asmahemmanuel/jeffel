@@ -6,6 +6,7 @@ import {
   Camera,
   CalendarCheck,
   ArrowDown,
+  Lock,
 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
@@ -17,6 +18,7 @@ import {
   serverTimestamp,
   doc,
   runTransaction,
+  onSnapshot,
 } from 'firebase/firestore'
 import {
   ref,
@@ -56,11 +58,13 @@ function getTimeLeft(target) {
 
 
 export default function Countdown() {
+  const [targetDate, setTargetDate] = useState(couple.countdownTarget)
   const [timeLeft, setTimeLeft] = useState(
     getTimeLeft(couple.countdownTarget)
   )
 
   const [isUploading, setIsUploading] = useState(false)
+  const [isUploadLocked, setIsUploadLocked] = useState(false)
   const [showRSVP, setShowRSVP] = useState(false)
 
   /*
@@ -115,18 +119,43 @@ export default function Countdown() {
 
 
   /* =========================================================
+     ADMIN SETTINGS LISTENER
+     ========================================================= */
+
+  useEffect(() => {
+    const settingsRef = doc(db, 'rsvp', 'adminSettings')
+    const unsubscribe = onSnapshot(settingsRef, (docSnap) => {
+      if (docSnap.exists()) {
+        const data = docSnap.data()
+        
+        if (data.countdownTarget) {
+          setTargetDate(data.countdownTarget)
+        }
+        
+        if (typeof data.uploadLocked === 'boolean') {
+          setIsUploadLocked(data.uploadLocked)
+        }
+      }
+    })
+
+    return () => unsubscribe()
+  }, [])
+
+
+  /* =========================================================
      COUNTDOWN TIMER
      ========================================================= */
 
   useEffect(() => {
+    // Update immediately when targetDate changes
+    setTimeLeft(getTimeLeft(targetDate))
+    
     const timer = setInterval(() => {
-      setTimeLeft(
-        getTimeLeft(couple.countdownTarget)
-      )
+      setTimeLeft(getTimeLeft(targetDate))
     }, 1000)
 
     return () => clearInterval(timer)
-  }, [])
+  }, [targetDate])
 
 
   /* =========================================================
@@ -663,11 +692,19 @@ export default function Countdown() {
 
             <button
               onClick={handleUploadClick}
-              disabled={isUploading}
+              disabled={isUploading || isUploadLocked}
               className="mt-1 md:mt-2 w-[125px] md:w-[200px] h-[68px] md:h-[72px] bg-off-white hover:bg-curry-gold hover:text-off-white transition-colors duration-300 text-emerald-green px-1.5 md:px-3 py-2 rounded-lg shadow-xl font-sans font-bold text-[9px] md:text-xs tracking-wide border-2 border-curry-gold flex flex-col items-center justify-center gap-1 leading-tight disabled:opacity-70 disabled:cursor-not-allowed text-center"
             >
 
-              {isUploading ? (
+              {isUploadLocked ? (
+                <>
+                  <Lock className="w-3.5 h-3.5 md:w-4 md:h-4 shrink-0" />
+
+                  <span>
+                    Upload photos of yourself with couple
+                  </span>
+                </>
+              ) : isUploading ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin shrink-0" />
 
