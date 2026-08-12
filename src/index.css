@@ -1,0 +1,58 @@
+@import "tailwindcss";
+
+@theme {
+  /* Colors */
+  --color-emerald-green: #006B3C;
+  --color-olive-green: #6B7134;
+  --color-curry-gold: #C99400;
+  --color-off-white: #F8F3E7;
+  --color-rosewood-pink: #B36A6D;
+
+  /* Fonts */
+  --font-display: "Playfair Display", serif;
+  --font-body: "Cormorant Garamond", serif;
+  --font-sans: "Inter", sans-serif;
+
+  /* Animations */
+  --animate-fade-up: fadeUp 0.8s ease-out forwards;
+
+  @keyframes fadeUp {
+    0% { opacity: 0; transform: translateY(24px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply font-body text-emerald-green bg-off-white;
+}
+
+h1, h2, h3, h4 {
+  @apply font-display;
+}
+
+::selection {
+  background-color: var(--color-emerald-green);
+  color: white;
+}
+
+/* Hide scrollbar everywhere, all browsers, while keeping scroll functional */
+html,
+body,
+* {
+  -ms-overflow-style: none;   /* IE and Edge */
+  scrollbar-width: none;      /* Firefox */
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+*::-webkit-scrollbar {
+  display: none;              /* Chrome, Safari, Opera */
+}
