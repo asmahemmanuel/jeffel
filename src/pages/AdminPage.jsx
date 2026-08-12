@@ -226,13 +226,15 @@ export default function AdminPage() {
                       className="w-full h-32 md:h-40 object-cover rounded-lg"
                       loading="lazy"
                     />
-                    <div className="absolute inset-0 bg-black/60 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">
+                    
+                    {/* Always visible on mobile in the top right, full overlay on hover for desktop */}
+                    <div className="absolute top-3 right-3 md:inset-0 md:bg-black/60 md:rounded-xl opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity flex items-center md:justify-center md:backdrop-blur-sm z-10">
                       <button 
                         onClick={() => handleDeletePhoto(photo.id, photo.url)}
-                        className="bg-rosewood-pink text-white p-3 rounded-full hover:scale-110 transition-transform shadow-xl"
+                        className="bg-rosewood-pink text-white p-2 md:p-3 rounded-full hover:scale-110 transition-transform shadow-md md:shadow-xl"
                         title="Delete Photo"
                       >
-                        <Trash2 className="w-5 h-5" />
+                        <Trash2 className="w-4 h-4 md:w-5 md:h-5" />
                       </button>
                     </div>
                   </div>
