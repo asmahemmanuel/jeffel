@@ -41,7 +41,7 @@ export default function Footer() {
       </div>
 
       <p className="text-emerald-green/60 font-sans text-sm mb-12">
-        {couple.weddingDateLabel}
+        October 31st 2026
       </p>
 
       {/* Powered By Branding */}
