@@ -6,6 +6,7 @@ import rings from '../assets/rings.webp'
 import { couple } from '../data/content'
 
 const navLinks = [
+  { label: 'Program Outline', href: '/program', isRoute: true },
   { label: 'Our Story', href: '#story' },
   { label: 'Our Colors', href: '#colors' },
   { label: 'Schedule', href: '#schedule' },
@@ -92,39 +93,39 @@ export default function Navbar() {
                 duration: 0.4,
                 ease: 'easeInOut',
               }}
-              className="fixed top-0 right-0 h-full w-full sm:w-[420px] bg-off-white z-50 shadow-2xl flex flex-col px-8 py-8 overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+              className="fixed top-0 right-0 h-full w-full sm:w-[420px] bg-off-white z-50 shadow-2xl flex flex-col px-6 sm:px-8 py-6 sm:py-8 overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
             >
               <button
                 onClick={() => setOpen(false)}
                 aria-label="Close menu"
-                className="self-end w-10 h-10 rounded-md border border-emerald-green/30 flex items-center justify-center text-emerald-green hover:bg-emerald-green/10 transition-colors mb-8"
+                className="self-end w-10 h-10 rounded-md border border-emerald-green/30 flex items-center justify-center text-emerald-green hover:bg-emerald-green/10 transition-colors mb-6"
               >
                 <X className="w-5 h-5" />
               </button>
 
-              <nav className="flex flex-col gap-7">
+              <nav className="flex flex-col gap-5">
                 {navLinks.map((link) => (
                   <button
                     key={link.href}
                     onClick={() => handleLinkClick(link)}
-                    className="text-left text-2xl font-display text-emerald-green hover:text-curry-gold transition-colors"
+                    className="text-left text-xl sm:text-2xl font-display text-emerald-green hover:text-curry-gold transition-colors"
                   >
                     {link.label}
                   </button>
                 ))}
               </nav>
 
-              <div className="mt-auto pt-16 flex flex-col items-center text-center">
+              <div className="mt-auto pt-10 flex flex-col items-center text-center">
                 <img
                   src={rings}
                   alt="Interlocked wedding rings"
-                  className="w-24 h-24 mb-4 object-contain"
+                  className="w-20 h-20 mb-3 object-contain"
                   loading="lazy"
                   decoding="async"
                 />
 
                 {/* Bottom Hashtags */}
-                <div className="flex flex-wrap justify-center gap-x-3 gap-y-1 text-emerald-green/70 font-sans text-sm">
+                <div className="flex flex-wrap justify-center gap-x-3 gap-y-1 text-emerald-green/70 font-sans text-xs sm:text-sm">
                   <p>{couple.hashtag}</p>
                   <p>#ThisIsForever</p>
                   <p>#TheInseparable2</p>

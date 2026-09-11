@@ -40,6 +40,36 @@ export const storyImage = {
   alt: 'Pre-wedding photo of the couple',
 }
 
+export const programNotice = {
+  title: 'Order of Service & Program Outline',
+  description: 'Explore the full timeline, order of events, and assigned ministers for our white wedding.',
+  buttonText: 'View Program Outline',
+}
+
+export const programOutline = [
+  {
+    title: 'Traditional Marriage',
+    date: 'Thursday, October 29th, 2026',
+    time: '10:00 AM',
+    venue: 'Private Family Venue',
+    description: 'A celebration of our culture, family union, and traditional rites.',
+  },
+  {
+    title: 'White Wedding',
+    date: 'Saturday, October 31st, 2026',
+    time: '11:00 AM',
+    venue: 'Global Revival Ministries, RC (Direction)',
+    description: 'Exchange of vows, holy matrimony, and celebration of our love before God and witnesses.',
+  },
+  {
+    title: 'Thanksgiving Service',
+    date: 'Sunday, November 1st, 2026',
+    time: '9:00 AM',
+    venue: 'Global Revival Ministries, RC (Direction)',
+    description: 'Joining together in worship, gratitude, and thanksgiving for the journey ahead.',
+  },
+]
+
 export const colors = [
   { name: 'Emerald Green', hex: '#006B3C' },
   { name: 'Olive Green', hex: '#6B7134' },

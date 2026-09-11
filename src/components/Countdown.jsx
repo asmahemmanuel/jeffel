@@ -8,7 +8,7 @@ import {
   ArrowDown,
   Lock,
 } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { couple } from '../data/content'
 import { db, storage } from '../firebase'
@@ -866,6 +866,32 @@ export default function Countdown() {
         </div>
 
       </div>
+
+
+      {/* =====================================================
+          PROGRAM OUTLINE CALLOUT SECTION (Right after Countdown)
+          ===================================================== */}
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.8 }}
+        className="mt-6 max-w-xl mx-auto bg-off-white border-2 border-curry-gold/50 rounded-2xl p-6 md:p-8 shadow-xl text-center relative overflow-hidden"
+      >
+        <div className="absolute top-0 left-0 w-full h-1.5 bg-emerald-green" />
+        <h3 className="text-xl md:text-2xl font-display text-emerald-green mb-2">
+          Order of Service & Program Outline
+        </h3>
+        <p className="font-sans text-xs md:text-sm text-emerald-green/80 mb-6">
+          Curious about how the big day will unfold? Explore our complete order of service, timeline, and assigned ministers.
+        </p>
+        <Link
+          to="/program"
+          className="inline-flex items-center justify-center bg-emerald-green hover:bg-emerald-green/90 text-off-white font-sans font-bold text-xs md:text-sm px-6 py-3 rounded-full shadow-lg transition-transform hover:scale-105 border border-emerald-green"
+        >
+          View Program Outline
+        </Link>
+      </motion.div>
 
     </section>
   )
