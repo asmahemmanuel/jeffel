@@ -3,13 +3,13 @@ import { storyImage } from '../data/content'
 
 export default function StoryImage() {
   return (
-    <section className="w-full overflow-hidden">
+    <section className="w-full overflow-hidden bg-off-white py-6 md:py-10">
       <motion.div
-        initial={{ opacity: 0, x: -100 }}
+        initial={{ opacity: 0, x: -50 }}
         whileInView={{ opacity: 1, x: 0 }}
         viewport={{ once: false, amount: 0.3 }}
         transition={{ duration: 0.8, ease: 'easeOut' }}
-        className="relative w-full h-[50vh] md:h-[70vh] overflow-hidden"
+        className="relative w-[85%] max-w-xs md:max-w-sm mx-auto aspect-[3/4] md:aspect-[4/5] overflow-hidden rounded-2xl shadow-xl"
       >
         {storyImage.src ? (
           <img

@@ -178,60 +178,36 @@ export default function Countdown() {
 
     try {
       for (const file of files) {
+        // AGGRESSIVE COMPRESSION TO MAKE IMAGES LOAD FASTER
         const options = {
-          maxSizeMB: 1,
-          maxWidthOrHeight: 1920,
+          maxSizeMB: 0.2, 
+          maxWidthOrHeight: 1080,
           useWebWorker: true,
+          initialQuality: 0.7,
         }
 
-        const compressedFile =
-          await imageCompression(
-            file,
-            options
-          )
+        const compressedFile = await imageCompression(file, options)
 
-        const fileRef = ref(
-          storage,
-          `gallery/${Date.now()}_${file.name}`
-        )
+        const fileRef = ref(storage, `gallery/${Date.now()}_${file.name}`)
 
-        await uploadBytes(
-          fileRef,
-          compressedFile
-        )
+        await uploadBytes(fileRef, compressedFile)
+        const downloadURL = await getDownloadURL(fileRef)
 
-        const downloadURL =
-          await getDownloadURL(fileRef)
-
-        await addDoc(
-          collection(db, 'gallery'),
-          {
-            url: downloadURL,
-            createdAt: serverTimestamp(),
-          }
-        )
+        await addDoc(collection(db, 'gallery'), {
+          url: downloadURL,
+          createdAt: serverTimestamp(),
+        })
       }
 
-      const successMessage =
-        files.length === 1
-          ? 'Photo uploaded successfully'
-          : 'Photos uploaded successfully'
-
+      const successMessage = files.length === 1 ? 'Photo uploaded successfully' : 'Photos uploaded successfully'
       toast.success(successMessage)
-
       navigate('/gallery')
+      
     } catch (error) {
-      console.error(
-        'Error uploading photos:',
-        error
-      )
-
-      toast.error(
-        'Failed to upload photos. Please try again.'
-      )
+      console.error('Error uploading photos:', error)
+      toast.error('Failed to upload photos. Please try again.')
     } finally {
       setIsUploading(false)
-
       if (fileInputRef.current) {
         fileInputRef.current.value = ''
       }
@@ -578,7 +554,7 @@ export default function Countdown() {
   return (
     <section
       id="countdown"
-      className="bg-white py-14 px-4 md:px-6 text-center overflow-visible"
+      className="bg-white py-10 md:py-14 px-4 md:px-6 text-center overflow-visible"
     >
 
       {/* =====================================================
@@ -600,11 +576,11 @@ export default function Countdown() {
           ===================================================== */}
 
       <Clock
-        className="w-6 h-6 text-emerald-green mx-auto mb-3"
+        className="w-5 h-5 md:w-6 md:h-6 text-emerald-green mx-auto mb-2 md:mb-3"
         strokeWidth={1.5}
       />
 
-      <h2 className="text-3xl md:text-4xl mb-2">
+      <h2 className="text-2xl md:text-4xl mb-2">
 
         <span className="font-display text-emerald-green">
           Start the{' '}
@@ -616,7 +592,7 @@ export default function Countdown() {
 
       </h2>
 
-      <p className="font-sans text-emerald-green/70 mb-8">
+      <p className="font-sans text-sm md:text-base text-emerald-green/70 mb-6 md:mb-8">
         Time left to the wedding!
       </p>
 
@@ -625,19 +601,19 @@ export default function Countdown() {
           COUNTDOWN NUMBERS
           ===================================================== */}
 
-      <div className="flex justify-center gap-3 md:gap-8 flex-wrap">
+      <div className="flex justify-center gap-2 md:gap-6 flex-wrap">
 
         {units.map((u) => (
           <div
             key={u.label}
-            className="bg-off-white rounded-xl px-4 md:px-6 py-4 min-w-[70px] md:min-w-[80px] shadow-sm"
+            className="bg-off-white rounded-xl px-3 md:px-6 py-3 md:py-4 min-w-[65px] md:min-w-[80px] shadow-sm"
           >
 
-            <p className="text-3xl md:text-4xl font-display text-curry-gold">
+            <p className="text-2xl md:text-4xl font-display text-curry-gold">
               {u.value}
             </p>
 
-            <p className="font-sans text-[10px] md:text-xs uppercase tracking-widest text-emerald-green/60 mt-1">
+            <p className="font-sans text-[9px] md:text-xs uppercase tracking-widest text-emerald-green/60 mt-1">
               {u.label}
             </p>
 
@@ -651,17 +627,36 @@ export default function Countdown() {
           DANGLING BAR AND BUTTONS
           ===================================================== */}
 
-      <div className="mt-16 flex flex-col items-center pb-12 w-full max-w-full">
+      <div className="mt-12 md:mt-14 flex flex-col items-center pb-8 md:pb-10 w-full max-w-full">
+
+        {/* ATTENTION NOTICE (Placed right above the bar) */}
+        <motion.div
+          initial={{ opacity: 0, y: -5 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="mb-4 flex flex-col items-center"
+        >
+          <p className="text-emerald-green font-sans font-bold text-xs md:text-sm tracking-wider uppercase">
+            PLEASE TAP ON CONFIRM ATTENDANCE RIGHT BELOW
+          </p>
+          <motion.div
+            animate={{ y: [0, 5, 0] }}
+            transition={{ repeat: Infinity, duration: 1.2, ease: 'easeInOut' }}
+          >
+            <ArrowDown className="w-4 h-4 md:w-5 md:h-5 text-curry-gold mt-1" />
+          </motion.div>
+        </motion.div>
+
 
         {/* Horizontal Bar */}
 
-        <div className="w-[290px] md:w-[480px] h-2 md:h-3 rounded-full bg-curry-gold shadow-[0_0_15px_rgba(201,148,0,0.5)] z-20">
+        <div className="w-[280px] md:w-[480px] h-2 md:h-3 rounded-full bg-curry-gold shadow-[0_0_15px_rgba(201,148,0,0.5)] z-20">
         </div>
 
 
         {/* Two dangling strings */}
 
-        <div className="flex justify-between w-[260px] md:w-[420px] -mt-0.5 md:-mt-1 z-10 relative">
+        <div className="flex justify-between w-[250px] md:w-[420px] -mt-0.5 md:-mt-1 z-10 relative">
 
 
           {/* =================================================
@@ -682,10 +677,10 @@ export default function Countdown() {
 
             <div className="flex flex-col items-center justify-center">
 
-              <div className="w-[2px] md:w-[3px] h-10 md:h-14 bg-curry-gold shadow-sm">
+              <div className="w-[2px] md:w-[3px] h-8 md:h-14 bg-curry-gold shadow-sm">
               </div>
 
-              <ArrowDown className="w-5 h-5 md:w-6 md:h-6 text-curry-gold -mt-1 md:-mt-2 drop-shadow-md" />
+              <ArrowDown className="w-4 h-4 md:w-6 md:h-6 text-curry-gold -mt-1 md:-mt-2 drop-shadow-md" />
 
             </div>
 
@@ -693,12 +688,12 @@ export default function Countdown() {
             <button
               onClick={handleUploadClick}
               disabled={isUploading || isUploadLocked}
-              className="mt-1 md:mt-2 w-[125px] md:w-[200px] h-[68px] md:h-[72px] bg-off-white hover:bg-curry-gold hover:text-off-white transition-colors duration-300 text-emerald-green px-1.5 md:px-3 py-2 rounded-lg shadow-xl font-sans font-bold text-[9px] md:text-xs tracking-wide border-2 border-curry-gold flex flex-col items-center justify-center gap-1 leading-tight disabled:opacity-70 disabled:cursor-not-allowed text-center"
+              className="mt-1 md:mt-2 w-[115px] md:w-[200px] h-[64px] md:h-[72px] bg-off-white hover:bg-curry-gold hover:text-off-white transition-colors duration-300 text-emerald-green px-1.5 md:px-3 py-1 md:py-2 rounded-lg shadow-xl font-sans font-bold text-[8.5px] md:text-xs tracking-wide border-2 border-curry-gold flex flex-col items-center justify-center gap-0.5 md:gap-1 leading-tight disabled:opacity-70 disabled:cursor-not-allowed text-center"
             >
 
               {isUploadLocked ? (
                 <>
-                  <Lock className="w-3.5 h-3.5 md:w-4 md:h-4 shrink-0" />
+                  <Lock className="w-3 h-3 md:w-4 md:h-4 shrink-0" />
 
                   <span>
                     Upload photos of yourself with couple
@@ -706,7 +701,7 @@ export default function Countdown() {
                 </>
               ) : isUploading ? (
                 <>
-                  <Loader2 className="w-4 h-4 animate-spin shrink-0" />
+                  <Loader2 className="w-3 h-3 md:w-4 md:h-4 animate-spin shrink-0" />
 
                   <span>
                     UPLOADING...
@@ -714,7 +709,7 @@ export default function Countdown() {
                 </>
               ) : (
                 <>
-                  <Camera className="w-3.5 h-3.5 md:w-4 md:h-4 shrink-0" />
+                  <Camera className="w-3 h-3 md:w-4 md:h-4 shrink-0" />
 
                   <span>
                     Upload photos of yourself with the couple
@@ -745,10 +740,10 @@ export default function Countdown() {
 
             <div className="flex flex-col items-center justify-center">
 
-              <div className="w-[2px] md:w-[3px] h-14 md:h-20 bg-curry-gold shadow-sm">
+              <div className="w-[2px] md:w-[3px] h-12 md:h-20 bg-curry-gold shadow-sm">
               </div>
 
-              <ArrowDown className="w-5 h-5 md:w-6 md:h-6 text-curry-gold -mt-1 md:-mt-2 drop-shadow-md" />
+              <ArrowDown className="w-4 h-4 md:w-6 md:h-6 text-curry-gold -mt-1 md:-mt-2 drop-shadow-md" />
 
             </div>
 
@@ -761,16 +756,15 @@ export default function Countdown() {
                 onClick={() =>
                   setShowRSVP(!showRSVP)
                 }
-                className="w-[125px] md:w-[200px] h-[68px] md:h-[72px] bg-emerald-green hover:bg-emerald-green/90 transition-colors duration-300 text-off-white px-2 py-2 rounded-lg shadow-xl font-sans font-bold text-[10px] md:text-sm tracking-wide border-2 border-emerald-green flex flex-col items-center justify-center gap-1 text-center"
+                className="w-[115px] md:w-[200px] h-[64px] md:h-[72px] bg-emerald-green hover:bg-emerald-green/90 transition-colors duration-300 text-off-white px-2 py-1 md:py-1.5 rounded-lg shadow-xl font-sans font-bold text-[10px] md:text-base tracking-wide border-2 border-emerald-green flex flex-col items-center justify-center text-center leading-tight"
               >
 
                 <CalendarCheck
-                  className="w-3.5 h-3.5 md:w-4 md:h-4 shrink-0 text-curry-gold"
+                  className="w-3 h-3 md:w-5 md:h-5 shrink-0 text-curry-gold mb-0.5 md:mb-1"
                 />
 
-                <span>
-                  Confirm Attendance
-                </span>
+                <span className="block">Confirm</span>
+                <span className="block">Attendance</span>
 
               </button>
 
@@ -799,12 +793,12 @@ export default function Countdown() {
                     transition={{
                       duration: 0.1,
                     }}
-                    className="absolute top-full left-1/2 -translate-x-1/2 w-[150px] md:w-full bg-off-white border-2 border-curry-gold/50 rounded-lg shadow-2xl p-2.5 md:p-3 flex flex-col gap-2.5 md:gap-3 z-50 mt-2"
+                    className="absolute top-full left-1/2 -translate-x-1/2 w-[140px] md:w-full bg-off-white border-2 border-curry-gold/50 rounded-lg shadow-2xl p-2 md:p-3 flex flex-col gap-2 md:gap-3 z-50 mt-2"
                   >
 
                     {/* Coming */}
 
-                    <label className="flex items-center gap-2 text-emerald-green text-[10px] md:text-xs font-sans font-bold cursor-pointer p-1 rounded hover:bg-curry-gold/10 transition-colors">
+                    <label className="flex items-center gap-2 text-emerald-green text-[9px] md:text-xs font-sans font-bold cursor-pointer p-1 rounded hover:bg-curry-gold/10 transition-colors">
 
                       <input
                         type="radio"
@@ -815,7 +809,7 @@ export default function Countdown() {
                         onChange={() =>
                           handleVote('coming')
                         }
-                        className="w-3.5 h-3.5 accent-curry-gold cursor-pointer"
+                        className="w-3 h-3 md:w-3.5 md:h-3.5 accent-curry-gold cursor-pointer"
                       />
 
                       Coming
@@ -825,7 +819,7 @@ export default function Countdown() {
 
                     {/* Yet to decide */}
 
-                    <label className="flex items-center gap-2 text-emerald-green text-[10px] md:text-xs font-sans font-bold cursor-pointer p-1 rounded hover:bg-curry-gold/10 transition-colors">
+                    <label className="flex items-center gap-2 text-emerald-green text-[9px] md:text-xs font-sans font-bold cursor-pointer p-1 rounded hover:bg-curry-gold/10 transition-colors">
 
                       <input
                         type="radio"
@@ -839,7 +833,7 @@ export default function Countdown() {
                             'yetToDecide'
                           )
                         }
-                        className="w-3.5 h-3.5 accent-curry-gold cursor-pointer"
+                        className="w-3 h-3 md:w-3.5 md:h-3.5 accent-curry-gold cursor-pointer"
                       />
 
                       Yet to decide
@@ -854,7 +848,7 @@ export default function Countdown() {
                         onClick={() =>
                           handleVote(null)
                         }
-                        className="mt-1 text-[9px] md:text-[11px] text-rosewood-pink font-sans font-semibold hover:underline text-left px-1"
+                        className="mt-1 text-[8.5px] md:text-[11px] text-rosewood-pink font-sans font-semibold hover:underline text-left px-1"
                       >
                         Clear my response
                       </button>

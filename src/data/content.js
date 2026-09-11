@@ -6,13 +6,13 @@
 // import heroPhoto3 from '../assets/hero-3.jpg'
 // import heroPhoto4 from '../assets/hero-4.jpg'
 // import heroPhoto5 from '../assets/hero-5.jpg'
-// import storyPhoto from '../assets/story.jpg'
+import storyPhoto from '../assets/story.jpg'
 // import colorsPhoto from '../assets/colors.jpg'
 // import contactPhoto from '../assets/contact.jpg'
 
 export const couple = {
-  partnerOne: 'Partner One',
-  partnerTwo: 'Partner Two',
+  partnerOne: 'Jeffrey Quansah',
+  partnerTwo: 'Eliana Amoafo',
   hashtag: '#TheJeffELChapter',
   tagline: "We can't wait to share our special day with you",
   weddingDateLabel: 'Month Day and Day',
@@ -30,16 +30,13 @@ export const heroImages = [
 
 export const ourStory = {
   paragraphs: [
-    "Replace this paragraph with how you first met — the setting, how it happened, and that first spark of recognition.",
-    "Replace this paragraph with the story of how you got to know each other — the details that made it clear this was different.",
-    "Replace this paragraph with your first date and the journey since, leading up to today.",
-    "Replace this closing line with something personal — a favorite phrase, an inside joke, or how you feel about the day ahead.",
+    "Our story began with a quiet glance in church, then a courageous hello that awakened something already written upon our hearts. From contacts exchanged on the stairs to conversations that blossomed into love, we found in each other a place to be known, cherished, and free. Through laughter, trials, prayers, and seasons, we kept choosing one another. Now, with God at our centre, the forever we once whispered about has become the beautiful chapter we are about to live."
   ],
   closingTag: '#TheJeffELChapter',
 }
 
 export const storyImage = {
-  src: '', // src: storyPhoto
+  src: storyPhoto, // Assigned the imported variable here!
   alt: 'Pre-wedding photo of the couple',
 }
 
@@ -59,42 +56,35 @@ export const colorsImage = {
 export const schedule = [
   {
     id: 'traditional',
-    date: 'Thursday, Month Day, Year',
+    date: 'Thursday October 29th 2026',
     title: 'Traditional marriage',
-    time: '8:00am',
-    location: 'Venue / Area name',
+    time: '10:00am',
+    location: '',
     link: null,
   },
   {
     id: 'whiteWedding',
-    date: 'Saturday, Month Day, Year',
+    date: 'Saturday October 31st 2026',
     title: 'White Wedding',
-    time: '12:00 noon',
-    location: 'Venue Name, Area (landmark reference)',
-    link: '#whiteWedding',
+    time: '11:00am',
+    location: 'Global Revival Ministries, RC (Direction)',
+    link: 'https://maps.app.goo.gl/jFnZ5KCfwshGHQHu6?g_st=iwb',
   },
   {
     id: 'thanksgiving',
-    date: 'Sunday, Month Day, Year',
+    date: 'Sunday November 1st 2026',
     title: 'Thanksgiving',
     time: '9:00am',
-    location: 'Venue Name, Area (landmark reference)',
-    link: '#thanksgiving',
+    location: 'Global Revival Ministries, RC (Direction)',
+    link: 'https://maps.app.goo.gl/jFnZ5KCfwshGHQHu6?g_st=iwb',
   },
 ]
 
 export const directions = [
   {
-    id: 'whiteWedding',
-    label: 'White Wedding',
-    venue: 'Venue Name, Area (landmark reference)',
-    mapEmbedSrc:
-      'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3022.421!2d-0.186964!3d5.603717!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2sAccra!5e0!3m2!1sen!2sgh',
-  },
-  {
-    id: 'thanksgiving',
-    label: 'Thanksgiving',
-    venue: 'Venue Name, Area (landmark reference)',
+    id: 'mainVenue',
+    label: 'White Wedding & Thanksgiving',
+    venue: 'Global Revival Ministries, RC',
     mapEmbedSrc:
       'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3022.421!2d-0.186964!3d5.603717!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2sAccra!5e0!3m2!1sen!2sgh',
   },
@@ -123,15 +113,14 @@ export const faqs = [
 export const giftInfo = {
   note: 'If you would like to gift us in cash, please see the details below:',
   entries: [
-    { number: '000 000 0000', name: 'Partner Two Full Name' },
-    { number: '000 000 0000', name: 'Partner One Full Name' },
+    { number: 'Momo: 0556608885 | ECOBANK: 1441004956794', name: 'Jeffrey Quansah' },
+    { number: 'Momo: 0539544798 | ABSA: 0853001333', name: 'Eliana Amoafo' },
   ],
-  reference: 'YOUR WEDDING REF',
+  reference: 'JeffEl',
 }
 
 export const contacts = [
-  { name: 'Contact One', phone: '000 000 0000' },
-  { name: 'Contact Two', phone: '000 000 0000' },
+  { name: 'Contact One', phone: '000 000 0000' }
 ]
 
 export const contactImage = {
@@ -141,6 +130,6 @@ export const contactImage = {
 
 export const coupleMessage = {
   title: 'A Message From Us',
-  body: "Thank you for being part of our story. Your presence, love, and support mean the world to us as we begin this new chapter together. We can't wait to celebrate with you!",
-  signature: 'With love, Partner One & Partner Two',
+  body: "Thank you for being part of our story. Your presence, love, and support means the world to us as we begin this new chapter together. We can't wait to celebrate with you!",
+  signature: 'With love, Jeffrey Quansah & Eliana Amoafo',
 }
