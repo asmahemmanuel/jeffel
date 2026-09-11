@@ -67,16 +67,19 @@ export default function Hero() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.3, ease: 'easeOut' }}
-        className="relative z-10 text-center py-8 md:py-12 px-6 bg-off-white"
+        className="relative z-10 text-center py-8 md:py-12 px-2 sm:px-6 bg-off-white w-full overflow-hidden"
         style={{ touchAction: 'pan-y' }}
       >
-        <p className="tracking-[0.3em] text-emerald-green text-sm font-sans mb-3 md:mb-4">
+        <p className="tracking-[0.3em] text-emerald-green text-xs sm:text-sm font-sans mb-3 md:mb-4">
           {couple.hashtag}
         </p>
-        <h1 className="text-4xl md:text-5xl lg:text-6xl text-emerald-green mb-3 md:mb-4">
+        
+        {/* Name constrained to one line with dynamic sizing for mobile */}
+        <h1 className="text-[4.5vw] min-[400px]:text-[5vw] sm:text-4xl md:text-5xl lg:text-6xl text-emerald-green mb-3 md:mb-4 whitespace-nowrap">
           {couple.partnerOne} <span className="text-curry-gold">&amp;</span> {couple.partnerTwo}
         </h1>
-        <p className="text-base md:text-lg text-olive-green/80 font-body italic">
+        
+        <p className="text-sm md:text-lg text-olive-green/80 font-body italic">
           {couple.tagline}
         </p>
       </motion.div>

@@ -9,7 +9,7 @@ export default function Footer() {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: false, amount: 0.5 }}
       transition={{ duration: 0.6 }}
-      className="bg-off-white py-16 px-6 text-center flex flex-col items-center"
+      className="bg-off-white py-16 px-4 text-center flex flex-col items-center overflow-hidden"
     >
       <motion.img
         src={rings}
@@ -22,13 +22,14 @@ export default function Footer() {
         loading="lazy"
         decoding="async"
       />
-      <h3 className="text-2xl text-emerald-green mb-1">
+      
+      {/* Name constrained to one line with dynamic sizing for mobile */}
+      <h3 className="text-[4.5vw] sm:text-xl md:text-2xl text-emerald-green mb-1 whitespace-nowrap">
         {couple.partnerOne} &amp; {couple.partnerTwo}
       </h3>
       
       {/* Hashtags container grouped with flex and gap for clean wrapping */}
       <div className="flex flex-wrap justify-center gap-x-4 gap-y-2 mb-2">
-        {/* Removed 'uppercase' class to preserve precise casing */}
         <p className="text-curry-gold font-sans tracking-widest text-sm">
           #TheJeffELChapter
         </p>
