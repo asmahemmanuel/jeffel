@@ -1,14 +1,12 @@
-// Once your images are ready, drop them in src/assets/ and uncomment the
-// imports below, then swap the matching `src: ''` to the imported variable.
-//
-// import heroPhoto1 from '../assets/hero-1.jpg'
-// import heroPhoto2 from '../assets/hero-2.jpg'
-// import heroPhoto3 from '../assets/hero-3.jpg'
-// import heroPhoto4 from '../assets/hero-4.jpg'
-// import heroPhoto5 from '../assets/hero-5.jpg'
+import heroPhoto1 from '../assets/hero-1.jpg'
+import heroPhoto2 from '../assets/hero-2.jpg'
+import heroPhoto3 from '../assets/hero-3.jpg'
+import heroPhoto4 from '../assets/hero-4.jpg'
+import heroPhoto5 from '../assets/hero-5.jpg'
 import storyPhoto from '../assets/story.jpg'
-// import colorsPhoto from '../assets/colors.jpg'
-// import contactPhoto from '../assets/contact.jpg'
+import colorsPhoto from '../assets/colors.jpg'
+import contactPhoto from '../assets/contact.jpg'
+import contactPhoto2 from '../assets/contact2.jpg' 
 
 export const couple = {
   partnerOne: 'Jeffrey Quansah',
@@ -16,16 +14,15 @@ export const couple = {
   hashtag: '#TheJeffELChapter',
   tagline: "We can't wait to share our special day with you",
   weddingDateLabel: 'Month Day and Day',
-  // Used by the countdown — set this to your real wedding date/time
   countdownTarget: '2026-11-06T08:00:00',
 }
 
 export const heroImages = [
-  { id: 1, label: 'Photo 1', src: '' }, // src: heroPhoto1
-  { id: 2, label: 'Photo 2', src: '' }, // src: heroPhoto2
-  { id: 3, label: 'Photo 3', src: '' }, // src: heroPhoto3
-  { id: 4, label: 'Photo 4', src: '' }, // src: heroPhoto4
-  { id: 5, label: 'Photo 5', src: '' }, // src: heroPhoto5
+  { id: 1, label: 'Photo 1', src: heroPhoto1 },
+  { id: 2, label: 'Photo 2', src: heroPhoto2 },
+  { id: 3, label: 'Photo 3', src: heroPhoto3 },
+  { id: 4, label: 'Photo 4', src: heroPhoto4 },
+  { id: 5, label: 'Photo 5', src: heroPhoto5 },
 ]
 
 export const ourStory = {
@@ -36,7 +33,7 @@ export const ourStory = {
 }
 
 export const storyImage = {
-  src: storyPhoto, // Assigned the imported variable here!
+  src: storyPhoto,
   alt: 'Pre-wedding photo of the couple',
 }
 
@@ -79,7 +76,7 @@ export const colors = [
 ]
 
 export const colorsImage = {
-  src: '', // src: colorsPhoto
+  src: colorsPhoto,
   alt: 'Pre-wedding photo of the couple',
 }
 
@@ -154,8 +151,13 @@ export const contacts = [
 ]
 
 export const contactImage = {
-  src: '', // src: contactPhoto
+  src: contactPhoto,
   alt: 'Pre-wedding photo of the couple',
+}
+
+export const contactImage2 = {
+  src: contactPhoto2,
+  alt: 'Second pre-wedding photo of the couple',
 }
 
 export const coupleMessage = {

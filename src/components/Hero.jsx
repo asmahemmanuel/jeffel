@@ -15,7 +15,7 @@ export default function Hero() {
   return (
     <section className="relative w-full overflow-hidden bg-off-white" style={{ touchAction: 'pan-y' }}>
       <div 
-        className="relative w-full h-[60vh] md:h-[85vh] overflow-hidden"
+        className="relative w-full h-[60vh] md:h-[85vh] overflow-hidden bg-black"
         style={{ touchAction: 'pan-y' }}
       >
         <AnimatePresence mode="sync">
@@ -25,18 +25,29 @@ export default function Hero() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3, ease: 'easeInOut' }}
-            className="absolute inset-0 pointer-events-none"
+            className="absolute inset-0 pointer-events-none flex items-center justify-center overflow-hidden"
             style={{ touchAction: 'pan-y' }}
           >
             {heroImages[index].src ? (
-              <img
-                src={heroImages[index].src}
-                alt={heroImages[index].label}
-                className="w-full h-full object-cover"
-                loading="eager"
-                fetchpriority={index === 0 ? 'high' : 'low'}
-                decoding="async"
-              />
+              <>
+                {/* 1. Background: Lightly blurred to keep the image recognizable */}
+                <img
+                  src={heroImages[index].src}
+                  alt=""
+                  className="absolute inset-0 w-full h-full object-cover blur-sm scale-105 opacity-60"
+                  aria-hidden="true"
+                />
+                
+                {/* 2. Foreground: full, uncropped portrait */}
+                <img
+                  src={heroImages[index].src}
+                  alt={heroImages[index].label}
+                  className="relative w-full h-full object-contain drop-shadow-2xl z-10"
+                  loading="eager"
+                  fetchpriority={index === 0 ? 'high' : 'low'}
+                  decoding="async"
+                />
+              </>
             ) : (
               <div className="absolute inset-0 bg-gradient-to-br from-emerald-green via-olive-green to-curry-gold flex items-center justify-center">
                 <span className="text-off-white/70 font-sans text-xs tracking-widest uppercase">
@@ -44,12 +55,14 @@ export default function Hero() {
                 </span>
               </div>
             )}
-            <div className="absolute inset-0 bg-black/20" />
+            
+            {/* Subtle dark overlay for contrast */}
+            <div className="absolute inset-0 bg-black/20 z-20" />
           </motion.div>
         </AnimatePresence>
 
         {/* Carousel Dots */}
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-10 pointer-events-auto">
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-30 pointer-events-auto">
           {heroImages.map((img, i) => (
             <button
               key={img.id}
@@ -76,10 +89,11 @@ export default function Hero() {
         
         {/* 
           Updated Hero Name Header: 
-          Uses 5vw on mobile, scales to 5xl/6xl on larger screens, 
-          and prevents breaking with whitespace-nowrap 
+          Uses a cascading series of vw units (viewport width) so it perfectly
+          shrinks and grows dynamically on tablets, laptops, and wide monitors 
+          without ever breaking to a new line or causing horizontal scroll.
         */}
-        <h1 className="text-[5vw] sm:text-4xl md:text-5xl lg:text-6xl font-display text-emerald-green mb-3 md:mb-4 whitespace-nowrap">
+        <h1 className="text-[5.5vw] sm:text-[4.5vw] md:text-[3.5vw] lg:text-[3vw] xl:text-[2.5vw] font-display text-emerald-green mb-3 md:mb-4 whitespace-nowrap">
           {couple.partnerOne} <span className="text-curry-gold">&amp;</span> {couple.partnerTwo}
         </h1>
         

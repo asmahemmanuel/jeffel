@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { db, storage } from '../firebase'
 import { doc, onSnapshot, setDoc, collection, query, orderBy, deleteDoc } from 'firebase/firestore'
 import { ref, deleteObject } from 'firebase/storage'
-import { Loader2, Users, HelpCircle, ArrowLeft, Lock, Unlock, Calendar, Trash2, Image as ImageIcon, Plus, Edit2, Save, X } from 'lucide-react'
+import { Loader2, Users, HelpCircle, ArrowLeft, Lock, Unlock, Calendar, Trash2, Image as ImageIcon, Plus, Edit2, Save, X, MessageSquareHeart } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
 
@@ -26,6 +26,7 @@ export default function AdminPage() {
   const [voteCounts, setVoteCounts] = useState({ coming: 0, yetToDecide: 0 })
   const [photos, setPhotos] = useState([])
   const [programItems, setProgramItems] = useState([])
+  const [wishes, setWishes] = useState([])
   
   // New Program Item Form State
   const [newItemTitle, setNewItemTitle] = useState('')
@@ -71,7 +72,6 @@ export default function AdminPage() {
       if (docSnap.exists() && docSnap.data().items) {
         setProgramItems(docSnap.data().items)
       } else {
-        // Initialize with default if not exists
         setProgramItems(defaultOrderOfService)
       }
     })
@@ -85,9 +85,22 @@ export default function AdminPage() {
         ...doc.data()
       }))
       setPhotos(fetchedPhotos)
-      setLoading(false)
     }, (error) => {
       console.error("Error fetching gallery: ", error)
+    })
+
+    // 5. Listen for Guestbook Wishes to allow deletion
+    const wishesRef = collection(db, 'wishes')
+    const wishesQuery = query(wishesRef, orderBy('createdAt', 'desc'))
+    const unsubscribeWishes = onSnapshot(wishesQuery, (snapshot) => {
+      const fetchedWishes = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }))
+      setWishes(fetchedWishes)
+      setLoading(false)
+    }, (error) => {
+      console.error("Error fetching wishes: ", error)
       setLoading(false)
     })
 
@@ -96,6 +109,7 @@ export default function AdminPage() {
       unsubscribeSettings()
       unsubscribeProgram()
       unsubscribeGallery()
+      unsubscribeWishes()
     }
   }, [])
 
@@ -193,6 +207,19 @@ export default function AdminPage() {
     }
   }
 
+  // Function to delete a guestbook wish
+  const handleDeleteWish = async (wishId) => {
+    if (!window.confirm("Are you sure you want to delete this wish?")) return
+
+    try {
+      await deleteDoc(doc(db, 'wishes', wishId))
+      toast.success('Wish deleted successfully!')
+    } catch (error) {
+      console.error("Error deleting wish: ", error)
+      toast.error('Failed to delete wish.')
+    }
+  }
+
   return (
     <div className="min-h-screen bg-off-white py-20 px-6 sm:px-10 lg:px-20 flex flex-col items-center">
       
@@ -257,7 +284,6 @@ export default function AdminPage() {
             <h2 className="text-2xl font-display text-emerald-green mb-6 border-b border-emerald-green/20 pb-2">Manage Program Outline</h2>
             <div className="bg-white rounded-2xl shadow-md p-6 md:p-8 flex flex-col gap-6">
               
-              {/* Add New Item Form */}
               <form onSubmit={handleAddProgramItem} className="bg-off-white p-4 rounded-xl border border-curry-gold/30 flex flex-col md:flex-row gap-3 items-center">
                 <input 
                   type="text"
@@ -290,7 +316,6 @@ export default function AdminPage() {
                 </button>
               </form>
 
-              {/* Program Items List */}
               <div className="space-y-3 max-h-[400px] overflow-y-auto pr-1">
                 {programItems.map((p) => (
                   <div key={p.id || p.item} className="p-3.5 bg-off-white/60 border border-emerald-green/10 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -374,6 +399,41 @@ export default function AdminPage() {
               </div>
 
             </div>
+          </section>
+
+          {/* =========================================
+              MANAGE GUESTBOOK WISHES SECTION
+              ========================================= */}
+          <section>
+            <h2 className="text-2xl font-display text-emerald-green mb-6 border-b border-emerald-green/20 pb-2">Manage Guestbook Wishes</h2>
+            {wishes.length === 0 ? (
+              <div className="bg-white rounded-2xl shadow-md p-12 flex flex-col items-center justify-center text-center">
+                <MessageSquareHeart className="w-12 h-12 text-emerald-green/20 mb-3" />
+                <p className="text-emerald-green/60 font-sans">No wishes have been left yet.</p>
+              </div>
+            ) : (
+              <div className="bg-white rounded-2xl shadow-md p-6 md:p-8 space-y-4 max-h-[450px] overflow-y-auto">
+                {wishes.map((wish) => (
+                  <div key={wish.id} className="p-4 bg-off-white/60 border border-emerald-green/10 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="flex-1">
+                      <h4 className="text-curry-gold font-sans font-bold text-xs uppercase tracking-wider mb-1">
+                        {wish.name}
+                      </h4>
+                      <p className="text-emerald-green/90 font-body italic text-sm md:text-base">
+                        "{wish.message}"
+                      </p>
+                    </div>
+                    <button 
+                      onClick={() => handleDeleteWish(wish.id)}
+                      className="self-end sm:self-center bg-rosewood-pink/10 text-rosewood-pink hover:bg-rosewood-pink hover:text-white p-2.5 rounded-xl transition-colors shrink-0"
+                      title="Delete Wish"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </section>
 
           {/* =========================================

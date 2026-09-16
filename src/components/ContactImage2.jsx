@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion'
-import { contactImage } from '../data/content'
+import { contactImage2 } from '../data/content'
 
-export default function ContactImage() {
+export default function ContactImage2() {
   return (
     <section className="w-full overflow-hidden bg-off-white py-6 md:py-10">
       <motion.div
@@ -11,10 +11,10 @@ export default function ContactImage() {
         transition={{ duration: 0.8, ease: 'easeOut' }}
         className="relative w-[85%] max-w-xs md:max-w-sm mx-auto aspect-[3/4] md:aspect-[4/5] overflow-hidden rounded-2xl shadow-xl"
       >
-        {contactImage.src ? (
+        {contactImage2.src ? (
           <img
-            src={contactImage.src}
-            alt={contactImage.alt}
+            src={contactImage2.src}
+            alt={contactImage2.alt}
             className="w-full h-full object-cover"
             loading="lazy"
             decoding="async"
