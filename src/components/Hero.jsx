@@ -6,9 +6,19 @@ export default function Hero() {
   const [index, setIndex] = useState(0)
 
   useEffect(() => {
+    // 1. Preload all hero images instantly to eliminate first-load delays
+    heroImages.forEach((hero) => {
+      if (hero.src) {
+        const img = new Image()
+        img.src = hero.src
+      }
+    })
+
+    // 2. Start the slideshow timer
     const timer = setInterval(() => {
       setIndex((prev) => (prev + 1) % heroImages.length)
     }, 6000)
+    
     return () => clearInterval(timer)
   }, [])
 
@@ -30,20 +40,28 @@ export default function Hero() {
           >
             {heroImages[index].src ? (
               <>
-                {/* 1. Background: Lightly blurred to keep the image recognizable */}
+                {/* 
+                  1. Background (Blur layer): 
+                  Hidden on mobile (hidden) to prevent dual-image overlap,
+                  visible on md and larger screens (md:block) with a light blur.
+                */}
                 <img
                   src={heroImages[index].src}
                   alt=""
-                  className="absolute inset-0 w-full h-full object-cover blur-sm scale-105 opacity-60"
+                  className="hidden md:block absolute inset-0 w-full h-full object-cover blur-sm scale-105 opacity-60"
                   aria-hidden="true"
                 />
                 
-                {/* 2. Foreground: full, uncropped portrait */}
+                {/* 
+                  2. Foreground (Main Image): 
+                  Acts like a standard responsive hero image on mobile (object-cover, object-top),
+                  but becomes an uncropped portrait on larger screens (md:object-contain).
+                */}
                 <img
                   src={heroImages[index].src}
                   alt={heroImages[index].label}
-                  className="relative w-full h-full object-contain drop-shadow-2xl z-10"
-                  loading="eager"
+                  className="relative w-full h-full object-cover object-top md:object-contain md:drop-shadow-2xl z-10"
+                  loading="eager" // Forces immediate rendering when swapped in
                   fetchpriority={index === 0 ? 'high' : 'low'}
                   decoding="async"
                 />
@@ -88,7 +106,7 @@ export default function Hero() {
         </p>
         
         {/* 
-          Updated Hero Name Header: 
+          Hero Name Header: 
           Uses a cascading series of vw units (viewport width) so it perfectly
           shrinks and grows dynamically on tablets, laptops, and wide monitors 
           without ever breaking to a new line or causing horizontal scroll.
