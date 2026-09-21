@@ -3,6 +3,8 @@ import heroPhoto2 from '../assets/hero-2.jpg'
 import heroPhoto3 from '../assets/hero-3.jpg'
 import heroPhoto4 from '../assets/hero-4.jpg'
 import heroPhoto5 from '../assets/hero-5.jpg'
+import heroPhoto6 from '../assets/jeffffffff.jpeg'
+import heroPhoto7 from '../assets/jefffffff.jpeg'
 import storyPhoto from '../assets/story.jpg'
 import colorsPhoto from '../assets/colors.jpg'
 import contactPhoto from '../assets/contact.jpg'
@@ -23,6 +25,8 @@ export const heroImages = [
   { id: 3, label: 'Photo 3', src: heroPhoto3 },
   { id: 4, label: 'Photo 4', src: heroPhoto4 },
   { id: 5, label: 'Photo 5', src: heroPhoto5 },
+  { id: 6, label: 'Photo 6', src: heroPhoto6 },
+  { id: 7, label: 'Photo 7', src: heroPhoto7 },
 ]
 
 export const ourStory = {
@@ -95,7 +99,7 @@ export const schedule = [
     title: 'White Wedding',
     time: '11:00am',
     location: 'Global Revival Ministries, RC (Direction)',
-    link: 'https://maps.app.goo.gl/jFnZ5KCfwshGHQHu6?g_st=iwb',
+    link: 'https://www.google.com/maps/dir/5.692322,-0.210481/Global+Revival+Ministries+(Revival+City),+MQWP%2B3FJ,+Haatso-Atomic+Rd,+Accra/@5.6937373,-0.2144972,17z/data=!3m1!4b1!4m10!4m9!1m1!4e1!1m5!1m1!1s0xfdf9c42702f9569:0x9472bf0f014efef4!2m2!1d-0.2138478!2d5.6952026!3e0?entry=ttu',
   },
   {
     id: 'thanksgiving',
@@ -103,7 +107,7 @@ export const schedule = [
     title: 'Thanksgiving',
     time: '9:00am',
     location: 'Global Revival Ministries, RC (Direction)',
-    link: 'https://maps.app.goo.gl/jFnZ5KCfwshGHQHu6?g_st=iwb',
+    link: 'https://www.google.com/maps/dir/5.692322,-0.210481/Global+Revival+Ministries+(Revival+City),+MQWP%2B3FJ,+Haatso-Atomic+Rd,+Accra/@5.6937373,-0.2144972,17z/data=!3m1!4b1!4m10!4m9!1m1!4e1!1m5!1m1!1s0xfdf9c42702f9569:0x9472bf0f014efef4!2m2!1d-0.2138478!2d5.6952026!3e0?entry=ttu',
   },
 ]
 
@@ -112,8 +116,9 @@ export const directions = [
     id: 'mainVenue',
     label: 'White Wedding & Thanksgiving',
     venue: 'Global Revival Ministries, RC',
+    // Converted your routing link into a valid Google Maps embed iframe URL pointing exactly to the church
     mapEmbedSrc:
-      'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3022.421!2d-0.186964!3d5.603717!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2sAccra!5e0!3m2!1sen!2sgh',
+      'https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d15881.743110903328!2d-0.2138478!3d5.6952026!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xfdf9c42702f9569%3A0x9472bf0f014efef4!2sGlobal%20Revival%20Ministries%20(Revival%20City)!5e0!3m2!1sen!2sgh',
   },
 ]
 
