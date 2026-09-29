@@ -99,7 +99,8 @@ export const schedule = [
     title: 'White Wedding',
     time: '11:00am',
     location: 'Global Revival Ministries, RC (Direction)',
-    link: 'https://www.google.com/maps/dir/5.692322,-0.210481/Global+Revival+Ministries+(Revival+City),+MQWP%2B3FJ,+Haatso-Atomic+Rd,+Accra/@5.6937373,-0.2144972,17z/data=!3m1!4b1!4m10!4m9!1m1!4e1!1m5!1m1!1s0xfdf9c42702f9569:0x9472bf0f014efef4!2m2!1d-0.2138478!2d5.6952026!3e0?entry=ttu',
+    // Matches the URL structure to open the side panel directly
+    link: 'https://www.google.com/maps?ll=5.695203,-0.213848&q=Global+Revival+Ministries+(Revival+City)&z=16',
   },
   {
     id: 'thanksgiving',
@@ -107,7 +108,8 @@ export const schedule = [
     title: 'Thanksgiving',
     time: '9:00am',
     location: 'Global Revival Ministries, RC (Direction)',
-    link: 'https://www.google.com/maps/dir/5.692322,-0.210481/Global+Revival+Ministries+(Revival+City),+MQWP%2B3FJ,+Haatso-Atomic+Rd,+Accra/@5.6937373,-0.2144972,17z/data=!3m1!4b1!4m10!4m9!1m1!4e1!1m5!1m1!1s0xfdf9c42702f9569:0x9472bf0f014efef4!2m2!1d-0.2138478!2d5.6952026!3e0?entry=ttu',
+    // Matches the URL structure to open the side panel directly
+    link: 'https://www.google.com/maps?ll=5.695203,-0.213848&q=Global+Revival+Ministries+(Revival+City)&z=16',
   },
 ]
 
@@ -116,7 +118,7 @@ export const directions = [
     id: 'mainVenue',
     label: 'White Wedding & Thanksgiving',
     venue: 'Global Revival Ministries, RC',
-    // Converted your routing link into a valid Google Maps embed iframe URL pointing exactly to the church
+    // Embed link strictly for the on-page iframe
     mapEmbedSrc:
       'https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d15881.743110903328!2d-0.2138478!3d5.6952026!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xfdf9c42702f9569%3A0x9472bf0f014efef4!2sGlobal%20Revival%20Ministries%20(Revival%20City)!5e0!3m2!1sen!2sgh',
   },
