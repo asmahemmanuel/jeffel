@@ -58,7 +58,7 @@ export const programOutline = [
   {
     title: 'White Wedding',
     date: 'Saturday, October 31st, 2026',
-    time: '11:00 AM',
+    time: '11:30 AM',
     venue: 'Global Revival Ministries, RC (Direction)',
     description: 'Exchange of vows, holy matrimony, and celebration of our love before God and witnesses.',
   },
@@ -97,7 +97,7 @@ export const schedule = [
     id: 'whiteWedding',
     date: 'Saturday October 31st 2026',
     title: 'White Wedding',
-    time: '11:00am',
+    time: '11:30am',
     location: 'Global Revival Ministries, RC (Direction)',
     // Matches the URL structure to open the side panel directly
     link: 'https://www.google.com/maps?ll=5.695203,-0.213848&q=Global+Revival+Ministries+(Revival+City)&z=16',
@@ -147,8 +147,8 @@ export const faqs = [
 export const giftInfo = {
   note: 'If you would like to gift us in cash, please see the details below:',
   entries: [
-    { number: 'Momo: 0556608885 | ECOBANK: 1441004956794', name: 'Jeffrey Quansah' },
-    { number: 'Momo: 0539544798 | ABSA: 0853001333', name: 'Eliana Amoafo' },
+    { number: 'Momo: 0556608885\nECOBANK: 1441004956794', name: 'Jeffrey Quansah' },
+    { number: 'Momo: 0539544798\nABSA: 0853001333', name: 'Eliana Amoafo' },
   ],
   reference: 'JeffEl',
 }

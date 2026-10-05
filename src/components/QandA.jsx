@@ -87,7 +87,8 @@ export default function QandA() {
         <div className="space-y-3 font-sans text-sm">
           {giftInfo.entries.map((e) => (
             <div key={e.number}>
-              <p className="text-emerald-green font-medium">{e.number}</p>
+              {/* Added whitespace-pre-line to allow the \n to break the text to the next line */}
+              <p className="text-emerald-green font-medium whitespace-pre-line">{e.number}</p>
               <p className="text-emerald-green/70">{e.name}</p>
             </div>
           ))}

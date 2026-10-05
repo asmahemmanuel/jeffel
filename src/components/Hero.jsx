@@ -28,13 +28,15 @@ export default function Hero() {
         className="relative w-full h-[60vh] md:h-[85vh] overflow-hidden bg-black"
         style={{ touchAction: 'pan-y' }}
       >
-        <AnimatePresence mode="sync">
+        {/* Removed mode="sync" to allow the old and new images to overlap during the crossfade */}
+        <AnimatePresence>
           <motion.div
             key={heroImages[index].id}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.3, ease: 'easeInOut' }}
+            // Increased duration to 2.5 for a much slower, beautiful crossfade
+            transition={{ duration: 2.5, ease: 'easeInOut' }}
             className="absolute inset-0 pointer-events-none flex items-center justify-center overflow-hidden"
             style={{ touchAction: 'pan-y' }}
           >
