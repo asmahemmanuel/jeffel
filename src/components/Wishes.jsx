@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { collection, addDoc, serverTimestamp, onSnapshot, query, orderBy } from 'firebase/firestore'
 import { db } from '../firebase'
 import toast from 'react-hot-toast'
-import { Send, Loader2, Quote, Heart, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Send, Loader2, Quote, Heart, ChevronLeft, ChevronRight, X } from 'lucide-react'
 
 export default function Wishes() {
   const [wishes, setWishes] = useState([])
@@ -11,6 +11,7 @@ export default function Wishes() {
   const [message, setMessage] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [currentSlide, setCurrentSlide] = useState(0)
+  const [selectedWish, setSelectedWish] = useState(null) // State for the popup
   const timerRef = useRef(null)
 
   // Fetch wishes from Firebase in real-time
@@ -28,7 +29,8 @@ export default function Wishes() {
 
   // Dynamic Word-Count Based Slideshow Timer
   useEffect(() => {
-    if (wishes.length <= 1) return
+    // PAUSE the slideshow if the popup is open (selectedWish is not null)
+    if (wishes.length <= 1 || selectedWish) return
 
     const currentWish = wishes[currentSlide]
     const wordCount = currentWish?.message ? currentWish.message.split(/\s+/).length : 5
@@ -41,7 +43,7 @@ export default function Wishes() {
     }, calculatedDelay)
 
     return () => clearTimeout(timerRef.current)
-  }, [currentSlide, wishes])
+  }, [currentSlide, wishes, selectedWish])
 
   const handleNext = () => {
     if (wishes.length <= 1) return
@@ -83,8 +85,13 @@ export default function Wishes() {
     }
   }
 
+  const MAX_CHARS = 160
+  const currentMessage = wishes[currentSlide]?.message || ''
+  const isLongMessage = currentMessage.length > MAX_CHARS
+  const displayMessage = isLongMessage ? currentMessage.substring(0, MAX_CHARS).trim() + '...' : currentMessage
+
   return (
-    <section id="wishes" className="bg-white py-16 md:py-24 px-6 overflow-hidden">
+    <section id="wishes" className="bg-white py-16 md:py-24 px-6 overflow-hidden relative">
       <div className="max-w-6xl mx-auto">
         
         <motion.div 
@@ -146,10 +153,20 @@ export default function Wishes() {
                     transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
                     className="absolute inset-0 flex flex-col items-center justify-center px-4 md:px-8"
                   >
-                    <p className="text-emerald-green font-body text-base md:text-xl italic mb-6 line-clamp-5 leading-relaxed">
-                      "{wishes[currentSlide]?.message}"
+                    <p className="text-emerald-green font-body text-base md:text-xl italic mb-2 leading-relaxed">
+                      "{displayMessage}"
                     </p>
-                    <div className="flex items-center justify-center gap-3">
+                    
+                    {isLongMessage && (
+                      <button 
+                        onClick={() => setSelectedWish(wishes[currentSlide])}
+                        className="text-curry-gold text-xs md:text-sm font-sans font-bold hover:underline mb-4 transition-all"
+                      >
+                        Read more
+                      </button>
+                    )}
+
+                    <div className={`flex items-center justify-center gap-3 ${!isLongMessage ? 'mt-4' : ''}`}>
                       <div className="w-8 h-[1px] bg-curry-gold"></div>
                       <h4 className="text-curry-gold font-sans font-bold tracking-widest uppercase text-xs md:text-sm">
                         {wishes[currentSlide]?.name}
@@ -242,6 +259,54 @@ export default function Wishes() {
 
         </div>
       </div>
+
+      {/* =======================
+          READ MORE MODAL (POP-UP)
+          ======================= */}
+      <AnimatePresence>
+        {selectedWish && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-6"
+          >
+            {/* Dark Backdrop (clicking outside closes the popup) */}
+            <div 
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm cursor-pointer"
+              onClick={() => setSelectedWish(null)}
+            />
+            
+            {/* Popup Content */}
+            <motion.div 
+              initial={{ scale: 0.95, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.95, y: 20 }}
+              className="relative bg-off-white rounded-3xl p-6 md:p-10 w-full max-w-2xl shadow-2xl max-h-[85vh] overflow-y-auto z-10 custom-scrollbar"
+            >
+              <button 
+                onClick={() => setSelectedWish(null)}
+                className="absolute top-4 right-4 p-2 bg-white/80 rounded-full shadow-sm text-emerald-green hover:bg-curry-gold hover:text-white transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+              
+              <Quote className="w-10 h-10 md:w-12 md:h-12 text-curry-gold/30 mb-4" />
+              
+              <p className="text-emerald-green font-body text-base md:text-lg leading-relaxed whitespace-pre-wrap mb-8">
+                {selectedWish.message}
+              </p>
+              
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-[1px] bg-curry-gold"></div>
+                <h4 className="text-curry-gold font-sans font-bold tracking-widest uppercase text-sm">
+                  {selectedWish.name}
+                </h4>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   )
 }
