@@ -7,6 +7,7 @@ import {
   CalendarCheck,
   ArrowDown,
   Lock,
+  Heart,
 } from 'lucide-react'
 import { useNavigate, Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
@@ -66,6 +67,9 @@ export default function Countdown() {
   const [isUploading, setIsUploading] = useState(false)
   const [isUploadLocked, setIsUploadLocked] = useState(false)
   const [showRSVP, setShowRSVP] = useState(false)
+  
+  // When true (set by admin), the countdown and confirm attendance are replaced by a thank you message
+  const [thankYouMode, setThankYouMode] = useState(false)
   
   // Track if we are currently checking the database for the fingerprint
   const [isCheckingDevice, setIsCheckingDevice] = useState(true)
@@ -132,6 +136,10 @@ export default function Countdown() {
         
         if (typeof data.uploadLocked === 'boolean') {
           setIsUploadLocked(data.uploadLocked)
+        }
+
+        if (typeof data.thankYouMode === 'boolean') {
+          setThankYouMode(data.thankYouMode)
         }
       }
     })
@@ -322,29 +330,65 @@ export default function Countdown() {
         className="hidden"
       />
 
-      <Clock className="w-5 h-5 md:w-6 md:h-6 text-emerald-green mx-auto mb-2 md:mb-3" strokeWidth={1.5} />
+      {thankYouMode ? (
+        /* ---------- THANK YOU MESSAGE (replaces countdown) ---------- */
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="max-w-xl mx-auto"
+        >
+          <Heart className="w-5 h-5 md:w-6 md:h-6 text-emerald-green mx-auto mb-2 md:mb-3" strokeWidth={1.5} />
 
-      <h2 className="text-2xl md:text-4xl mb-2">
-        <span className="font-display text-emerald-green">Start the </span>
-        <span className="font-display text-curry-gold">countdown</span>
-      </h2>
+          <h2 className="text-2xl md:text-4xl mb-2">
+            <span className="font-display text-emerald-green">Thank </span>
+            <span className="font-display text-curry-gold">you</span>
+          </h2>
 
-      <p className="font-sans text-sm md:text-base text-emerald-green/70 mb-6 md:mb-8">
-        Time left to the wedding!
-      </p>
+          <p className="font-sans text-sm md:text-base text-emerald-green/70 mb-6 md:mb-8">
+            A message from Mr. &amp; Mrs. Quansah
+          </p>
 
-      <div className="flex justify-center gap-2 md:gap-6 flex-wrap">
-        {units.map((u) => (
-          <div key={u.label} className="bg-off-white rounded-xl px-3 md:px-6 py-3 md:py-4 min-w-[65px] md:min-w-[80px] shadow-sm">
-            <p className="text-2xl md:text-4xl font-display text-curry-gold">{u.value}</p>
-            <p className="font-sans text-[9px] md:text-xs uppercase tracking-widest text-emerald-green/60 mt-1">{u.label}</p>
+          <div className="bg-off-white rounded-xl px-5 md:px-8 py-5 md:py-7 shadow-sm">
+            <p className="font-sans text-sm md:text-base text-emerald-green/80 leading-relaxed">
+              Thank you for celebrating with us, for your presence, your prayers, your gifts and your love.
+              You made our special day even more beautiful, and we are truly grateful.
+              May God bless you richly.
+              <br />
+              <p>Please tap on the button below to upload pictures you took with us.</p>
+            </p>
+            <p className="font-display text-curry-gold text-base md:text-xl mt-4 md:mt-5">
+              With love, Mr. &amp; Mrs. Quansah
+            </p>
           </div>
-        ))}
-      </div>
+        </motion.div>
+      ) : (
+        <>
+          <Clock className="w-5 h-5 md:w-6 md:h-6 text-emerald-green mx-auto mb-2 md:mb-3" strokeWidth={1.5} />
+
+          <h2 className="text-2xl md:text-4xl mb-2">
+            <span className="font-display text-emerald-green">Start the </span>
+            <span className="font-display text-curry-gold">countdown</span>
+          </h2>
+
+          <p className="font-sans text-sm md:text-base text-emerald-green/70 mb-6 md:mb-8">
+            Time left to the wedding!
+          </p>
+
+          <div className="flex justify-center gap-2 md:gap-6 flex-wrap">
+            {units.map((u) => (
+              <div key={u.label} className="bg-off-white rounded-xl px-3 md:px-6 py-3 md:py-4 min-w-[65px] md:min-w-[80px] shadow-sm">
+                <p className="text-2xl md:text-4xl font-display text-curry-gold">{u.value}</p>
+                <p className="font-sans text-[9px] md:text-xs uppercase tracking-widest text-emerald-green/60 mt-1">{u.label}</p>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
 
       <div className="mt-12 md:mt-14 flex flex-col items-center pb-8 md:pb-10 w-full max-w-full">
 
-        {!currentVote && !isCheckingDevice && (
+        {!thankYouMode && !currentVote && !isCheckingDevice && (
           <motion.div initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="mb-4 flex flex-col items-center">
             <p className="text-emerald-green font-sans font-bold text-xs md:text-sm tracking-wider uppercase">
               PLEASE TAP ON CONFIRM ATTENDANCE RIGHT BELOW
@@ -357,7 +401,7 @@ export default function Countdown() {
 
         <div className="w-[280px] md:w-[480px] h-2 md:h-3 rounded-full bg-curry-gold shadow-[0_0_15px_rgba(201,148,0,0.5)] z-20"></div>
 
-        <div className="flex justify-between w-[250px] md:w-[420px] -mt-0.5 md:-mt-1 z-10 relative">
+        <div className={`flex ${thankYouMode ? 'justify-center' : 'justify-between'} w-[250px] md:w-[420px] -mt-0.5 md:-mt-1 z-10 relative`}>
 
           {/* UPLOAD PHOTOS */}
           <motion.div className="flex flex-col items-center origin-top" animate={{ rotate: [-2, 2, -2] }} transition={{ repeat: Infinity, duration: 4.2, ease: 'easeInOut' }}>
@@ -378,6 +422,7 @@ export default function Countdown() {
           </motion.div>
 
           {/* CONFIRM ATTENDANCE */}
+          {!thankYouMode && (
           <motion.div className="flex flex-col items-center origin-top relative" animate={{ rotate: [2, -2, 2] }} transition={{ repeat: Infinity, duration: 3.8, ease: 'easeInOut' }}>
             <div className="flex flex-col items-center justify-center">
               <div className="w-[2px] md:w-[3px] h-12 md:h-20 bg-curry-gold shadow-sm"></div>
@@ -418,6 +463,7 @@ export default function Countdown() {
               </AnimatePresence>
             </div>
           </motion.div>
+          )}
         </div>
       </div>
 

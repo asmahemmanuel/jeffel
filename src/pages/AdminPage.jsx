@@ -1,44 +1,298 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { db, storage } from '../firebase'
 import { doc, onSnapshot, setDoc, collection, query, orderBy, deleteDoc } from 'firebase/firestore'
 import { ref, deleteObject } from 'firebase/storage'
-import { Loader2, Users, HelpCircle, ArrowLeft, Lock, Unlock, Calendar, Trash2, Image as ImageIcon, Plus, Edit2, Save, X, MessageSquareHeart } from 'lucide-react'
+import { Loader2, Users, HelpCircle, ArrowLeft, Lock, Unlock, Calendar, Trash2, Image as ImageIcon, Plus, Edit2, Save, X, MessageSquareHeart, ChevronUp, ChevronDown, Eye, EyeOff, Heart } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
 
-const defaultOrderOfService = [
-  { id: '1', item: 'Opening Prayer & Praise and Worship', time: '11:00 AM', assignee: '' },
-  { id: '2', item: 'Processional (Entrance of Groom & Bride)', time: '11:15 AM', assignee: '' },
-  { id: '3', item: 'Welcome & Introduction of Officiating Ministers', time: '11:30 AM', assignee: '' },
-  { id: '4', item: 'Congregational Hymn', time: '11:45 AM', assignee: '' },
-  { id: '5', item: 'Declaration of Intent & Exchange of Vows', time: '12:00 PM', assignee: '' },
-  { id: '6', item: 'Blessing and Exchange of Rings', time: '12:15 PM', assignee: '' },
-  { id: '7', item: 'Signing of the Marriage Certificate', time: '12:30 PM', assignee: '' },
-  { id: '8', item: 'Pronouncement & First Kiss', time: '12:45 PM', assignee: '' },
-  { id: '9', item: 'Exhortation / Wedding Sermon', time: '1:00 PM', assignee: '' },
-  { id: '10', item: 'Offertory & Special Ministration', time: '1:20 PM', assignee: '' },
-  { id: '11', item: 'Vote of Thanks & Acknowledgments', time: '1:40 PM', assignee: '' },
-  { id: '12', item: 'Closing Prayer & Benediction', time: '1:50 PM', assignee: '' },
-  { id: '13', item: 'Recessional March', time: '2:00 PM', assignee: '' }
+const defaultProgram = {
+  showFullProgram: false,
+  details: {
+    thankYou: 'Thank you',
+    thankYouSub: 'FOR BEING A PART OF OUR SPECIAL DAY',
+    quote: '"And now these three remain: faith, hope and love. But the greatest of these is love."',
+    quoteRef: '1 CORINTHIANS 13:13'
+  },
+  officiating: [
+    'Rev Dr. Robert Ampiah Kwofi',
+    'Rev. Mrs Abrefi Ampiah Kwofi',
+    'Rev. William Orhin',
+    'Rev Edem Emil Dusu',
+    'Rev Rexford Lamptey'
+  ],
+  supporting: [
+    'Prophet Daniel Agu',
+    'Rev. Dr. P D Quartey',
+    'Rev. Andy Denteh',
+    'Ps. Stanley Asante Mireku',
+    'Rev. William Amoafo',
+    'Ps. John Bosco Brempong',
+    'Ps. Grace Bentil'
+  ],
+  items: [
+    { id: '1', item: 'Musical Prelude/Arrival of Guests/Groom', assignee: 'Song Ministration: Levite Shebach', time: '' },
+    { id: '2', item: 'Opening Prayer', assignee: '', time: '' },
+    { id: '3', item: 'Bridal March', assignee: '', time: '' },
+    { id: '4', item: 'Praise and Worship', assignee: 'Min Steve Bright Makafui.', time: '' },
+    { id: '5', item: 'Declaration of purpose', assignee: '', time: '' },
+    { id: '6', item: 'Special Song Ministration by Min. Sitso', assignee: '', time: '' },
+    { id: '7', item: 'Solemnization of Matrimony', assignee: '', time: '' },
+    { id: '8', item: '1st Offertory', assignee: 'Min. Samuel Anie - Amoah', time: '' },
+    { id: '9', item: '1st Scripture Reading – 1 Corinthian 13:1-13', assignee: '', time: '' },
+    { id: '10', item: '2nd Scripture Reading – 1 John 4:7-21', assignee: '', time: '' },
+    { id: '11', item: 'Sermon', assignee: 'Rev. Robert Ampiah Kwofi', time: '' },
+    { id: '12', item: 'Signing of Registrar', assignee: '', time: '' },
+    { id: '13', item: '2nd Offertory', assignee: 'Songs by Global Harmonic Clarions', time: '' },
+    { id: '14', item: 'Welcoming of couple', assignee: 'Min. Asmah / Min. Richie', time: '' },
+    { id: '15', item: 'Presentation of Certificate & Offertory', assignee: '', time: '' },
+    { id: '16', item: 'Announcement', assignee: '', time: '' },
+    { id: '17', item: 'Closing Hymn', assignee: 'The Lord Bless you and Keep You – Min. Mary-Ann', time: '' },
+    { id: '18', item: 'Closing prayer', assignee: '', time: '' },
+    { id: '19', item: 'Exit march', assignee: '', time: '' }
+  ],
+  photoItems: []
+}
+
+const detailFields = [
+  { key: 'thankYou', label: 'Thank You Heading' },
+  { key: 'thankYouSub', label: 'Thank You Subtext' },
+  { key: 'quote', label: 'Scripture Quote' },
+  { key: 'quoteRef', label: 'Scripture Reference' }
 ]
 
-export default function AdminPage() {
-  const [voteCounts, setVoteCounts] = useState({ coming: 0, yetToDecide: 0 })
-  const [photos, setPhotos] = useState([])
-  const [programItems, setProgramItems] = useState([])
-  const [wishes, setWishes] = useState([])
-  
-  // New Program Item Form State
-  const [newItemTitle, setNewItemTitle] = useState('')
-  const [newItemTime, setNewItemTime] = useState('')
-  const [newItemAssignee, setNewItemAssignee] = useState('')
+// Reusable manager for a numbered list (Order of Service / Order of Photography)
+// When `simple` is true, only the item title is used (no time, no assignee)
+function ItemListManager({ title, items, onSave, saving, itemPlaceholder, simple = false }) {
+  const [newTitle, setNewTitle] = useState('')
+  const [newTime, setNewTime] = useState('')
+  const [newAssignee, setNewAssignee] = useState('')
   const [editingId, setEditingId] = useState(null)
   const [editTitle, setEditTitle] = useState('')
   const [editTime, setEditTime] = useState('')
   const [editAssignee, setEditAssignee] = useState('')
 
+  const handleAdd = (e) => {
+    e.preventDefault()
+    if (!newTitle.trim()) {
+      toast.error('Please enter the item title.')
+      return
+    }
+    const newItem = {
+      id: Date.now().toString(),
+      item: newTitle.trim(),
+      time: simple ? '' : newTime.trim(),
+      assignee: simple ? '' : newAssignee.trim()
+    }
+    onSave([...items, newItem])
+    setNewTitle('')
+    setNewTime('')
+    setNewAssignee('')
+  }
+
+  const handleDelete = (id) => {
+    onSave(items.filter(p => p.id !== id))
+  }
+
+  const handleStartEdit = (item) => {
+    setEditingId(item.id)
+    setEditTitle(item.item)
+    setEditTime(item.time || '')
+    setEditAssignee(item.assignee || '')
+  }
+
+  const handleSaveEdit = (id) => {
+    const updated = items.map(p => {
+      if (p.id !== id) return p
+      if (simple) return { ...p, item: editTitle, time: '', assignee: '' }
+      return { ...p, item: editTitle, time: editTime, assignee: editAssignee }
+    })
+    onSave(updated)
+    setEditingId(null)
+  }
+
+  const handleMove = (index, direction) => {
+    const target = index + direction
+    if (target < 0 || target >= items.length) return
+    const updated = [...items]
+    const temp = updated[index]
+    updated[index] = updated[target]
+    updated[target] = temp
+    onSave(updated)
+  }
+
+  return (
+    <div className="bg-white rounded-2xl shadow-md p-6 md:p-8 flex flex-col gap-6">
+      <h3 className="text-lg font-display text-emerald-green">{title}</h3>
+
+      <form onSubmit={handleAdd} className="bg-off-white p-4 rounded-xl border border-curry-gold/30 flex flex-col md:flex-row gap-3 items-center">
+        <input
+          type="text"
+          placeholder={itemPlaceholder}
+          value={newTitle}
+          onChange={(e) => setNewTitle(e.target.value)}
+          className="flex-1 w-full border border-emerald-green/30 rounded-lg p-2.5 text-xs md:text-sm font-sans focus:outline-none focus:border-curry-gold"
+        />
+        {!simple && (
+          <>
+            <input
+              type="text"
+              placeholder="Time (optional)"
+              value={newTime}
+              onChange={(e) => setNewTime(e.target.value)}
+              className="w-full md:w-32 border border-emerald-green/30 rounded-lg p-2.5 text-xs md:text-sm font-sans focus:outline-none focus:border-curry-gold"
+            />
+            <input
+              type="text"
+              placeholder="Assignee (e.g. Rev. John)"
+              value={newAssignee}
+              onChange={(e) => setNewAssignee(e.target.value)}
+              className="w-full md:w-44 border border-emerald-green/30 rounded-lg p-2.5 text-xs md:text-sm font-sans focus:outline-none focus:border-curry-gold"
+            />
+          </>
+        )}
+        <button
+          type="submit"
+          disabled={saving}
+          className="w-full md:w-auto bg-emerald-green text-off-white px-5 py-2.5 rounded-lg text-xs font-bold hover:bg-emerald-green/90 transition-colors flex items-center justify-center gap-1.5 shrink-0"
+        >
+          <Plus className="w-4 h-4" />
+          Add Item
+        </button>
+      </form>
+
+      {items.length === 0 ? (
+        <p className="text-emerald-green/60 font-sans text-sm text-center py-4">No items yet.</p>
+      ) : (
+        <div className="space-y-3 max-h-[400px] overflow-y-auto pr-1">
+          {items.map((p, index) => (
+            <div key={p.id || p.item} className="p-3.5 bg-off-white/60 border border-emerald-green/10 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              {editingId === p.id ? (
+                <div className="flex-1 flex flex-col sm:flex-row gap-2">
+                  <input
+                    type="text"
+                    value={editTitle}
+                    onChange={(e) => setEditTitle(e.target.value)}
+                    className="flex-1 border border-emerald-green/30 rounded p-1.5 text-xs font-sans"
+                  />
+                  {!simple && (
+                    <>
+                      <input
+                        type="text"
+                        value={editTime}
+                        onChange={(e) => setEditTime(e.target.value)}
+                        placeholder="Time (optional)"
+                        className="w-full sm:w-28 border border-emerald-green/30 rounded p-1.5 text-xs font-sans"
+                      />
+                      <input
+                        type="text"
+                        value={editAssignee}
+                        onChange={(e) => setEditAssignee(e.target.value)}
+                        placeholder="Assignee"
+                        className="w-full sm:w-36 border border-emerald-green/30 rounded p-1.5 text-xs font-sans"
+                      />
+                    </>
+                  )}
+                </div>
+              ) : (
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between flex-1 gap-2">
+                  <span className="font-sans font-semibold text-xs md:text-sm text-emerald-green">
+                    <span className="text-curry-gold mr-2">{index + 1}.</span>
+                    {p.item}
+                  </span>
+                  {!simple && (
+                    <div className="flex items-center gap-2">
+                      {p.assignee && (
+                        <span className="bg-curry-gold/10 text-curry-gold border border-curry-gold/30 text-[10px] px-2 py-0.5 rounded-full font-sans font-bold">
+                          👤 {p.assignee}
+                        </span>
+                      )}
+                      {p.time && (
+                        <span className="bg-emerald-green/10 text-emerald-green text-[11px] px-2.5 py-0.5 rounded-full font-sans font-bold">
+                          {p.time}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <div className="flex items-center gap-2 self-end sm:self-center shrink-0">
+                {editingId === p.id ? (
+                  <>
+                    <button
+                      onClick={() => handleSaveEdit(p.id)}
+                      className="bg-emerald-green text-white p-1.5 rounded hover:bg-emerald-green/90"
+                      title="Save"
+                    >
+                      <Save className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => setEditingId(null)}
+                      className="bg-gray-400 text-white p-1.5 rounded hover:bg-gray-500"
+                      title="Cancel"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      onClick={() => handleMove(index, -1)}
+                      disabled={index === 0}
+                      className="text-emerald-green hover:text-curry-gold p-1.5 rounded disabled:opacity-30"
+                      title="Move Up"
+                    >
+                      <ChevronUp className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => handleMove(index, 1)}
+                      disabled={index === items.length - 1}
+                      className="text-emerald-green hover:text-curry-gold p-1.5 rounded disabled:opacity-30"
+                      title="Move Down"
+                    >
+                      <ChevronDown className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => handleStartEdit(p)}
+                      className="text-emerald-green hover:text-curry-gold p-1.5 rounded"
+                      title="Edit"
+                    >
+                      <Edit2 className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(p.id)}
+                      className="text-rosewood-pink hover:text-rosewood-pink/80 p-1.5 rounded"
+                      title="Delete"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+export default function AdminPage() {
+  const [voteCounts, setVoteCounts] = useState({ coming: 0, yetToDecide: 0 })
+  const [photos, setPhotos] = useState([])
+  const [program, setProgram] = useState(defaultProgram)
+  const [wishes, setWishes] = useState([])
+
+  // Draft state for program details & ministers (edited then saved with a button)
+  const [detailsDraft, setDetailsDraft] = useState(defaultProgram.details)
+  const [officiatingDraft, setOfficiatingDraft] = useState(defaultProgram.officiating.join('\n'))
+  const [supportingDraft, setSupportingDraft] = useState(defaultProgram.supporting.join('\n'))
+  const draftsInitialized = useRef(false)
+
   // Admin Settings State
   const [uploadLocked, setUploadLocked] = useState(false)
+  const [thankYouMode, setThankYouMode] = useState(false)
   const [countdownDate, setCountdownDate] = useState('')
   const [isSaving, setIsSaving] = useState(false)
   const [isSavingProgram, setIsSavingProgram] = useState(false)
@@ -54,25 +308,42 @@ export default function AdminPage() {
       }
     }, (error) => console.error("Error fetching RSVP data: ", error))
 
-    // 2. Listen for Admin Settings (Lock status and target date)
+    // 2. Listen for Admin Settings (Lock status, thank you mode and target date)
     const settingsRef = doc(db, 'rsvp', 'adminSettings')
     const unsubscribeSettings = onSnapshot(settingsRef, (docSnap) => {
       if (docSnap.exists()) {
         const data = docSnap.data()
         setUploadLocked(data.uploadLocked || false)
+        setThankYouMode(data.thankYouMode || false)
         if (data.countdownTarget) {
           setCountdownDate(data.countdownTarget)
         }
       }
     })
 
-    // 3. Listen for Program Outline items
+    // 3. Listen for Program Outline data
     const programRef = doc(db, 'program', 'outline')
     const unsubscribeProgram = onSnapshot(programRef, (docSnap) => {
-      if (docSnap.exists() && docSnap.data().items) {
-        setProgramItems(docSnap.data().items)
-      } else {
-        setProgramItems(defaultOrderOfService)
+      let loaded = defaultProgram
+      if (docSnap.exists()) {
+        const data = docSnap.data()
+        loaded = {
+          showFullProgram: data.showFullProgram === true,
+          details: { ...defaultProgram.details, ...(data.details || {}) },
+          officiating: data.officiating || defaultProgram.officiating,
+          supporting: data.supporting || defaultProgram.supporting,
+          items: data.items || defaultProgram.items,
+          photoItems: data.photoItems || []
+        }
+      }
+      setProgram(loaded)
+
+      // Only fill the editable drafts the first time so we don't overwrite what the admin is typing
+      if (!draftsInitialized.current) {
+        setDetailsDraft(loaded.details)
+        setOfficiatingDraft(loaded.officiating.join('\n'))
+        setSupportingDraft(loaded.supporting.join('\n'))
+        draftsInitialized.current = true
       }
     })
 
@@ -113,12 +384,13 @@ export default function AdminPage() {
     }
   }, [])
 
-  // Function to save lock status and countdown date
+  // Function to save lock status, thank you mode and countdown date
   const handleSaveSettings = async () => {
     setIsSaving(true)
     try {
       await setDoc(doc(db, 'rsvp', 'adminSettings'), {
         uploadLocked: uploadLocked,
+        thankYouMode: thankYouMode,
         countdownTarget: countdownDate
       }, { merge: true })
       toast.success('Admin settings updated successfully!')
@@ -130,12 +402,12 @@ export default function AdminPage() {
     }
   }
 
-  // Save Program Outline to Firestore
-  const saveProgramToFirestore = async (updatedItems) => {
+  // Save Program Outline (any part of it) to Firestore
+  const saveProgramToFirestore = async (partial, message = 'Program outline updated!') => {
     setIsSavingProgram(true)
     try {
-      await setDoc(doc(db, 'program', 'outline'), { items: updatedItems })
-      toast.success('Program outline updated!')
+      await setDoc(doc(db, 'program', 'outline'), { ...program, ...partial })
+      toast.success(message)
     } catch (error) {
       console.error("Error saving program: ", error)
       toast.error('Failed to update program outline.')
@@ -144,52 +416,29 @@ export default function AdminPage() {
     }
   }
 
-  // Add new program item
-  const handleAddProgramItem = (e) => {
-    e.preventDefault()
-    if (!newItemTitle.trim() || !newItemTime.trim()) {
-      toast.error('Please enter both title and time.')
-      return
-    }
+  const linesToArray = (text) =>
+    text.split('\n').map(line => line.trim()).filter(Boolean)
 
-    const newItem = {
-      id: Date.now().toString(),
-      item: newItemTitle.trim(),
-      time: newItemTime.trim(),
-      assignee: newItemAssignee.trim()
-    }
-
-    const updated = [...programItems, newItem]
-    saveProgramToFirestore(updated)
-    setNewItemTitle('')
-    setNewItemTime('')
-    setNewItemAssignee('')
+  const handleSaveDetails = () => {
+    saveProgramToFirestore({ details: detailsDraft })
   }
 
-  // Delete program item
-  const handleDeleteProgramItem = (id) => {
-    const updated = programItems.filter(p => p.id !== id)
-    saveProgramToFirestore(updated)
-  }
-
-  // Start editing program item
-  const handleStartEdit = (item) => {
-    setEditingId(item.id)
-    setEditTitle(item.item)
-    setEditTime(item.time)
-    setEditAssignee(item.assignee || '')
-  }
-
-  // Save edited program item
-  const handleSaveEdit = (id) => {
-    const updated = programItems.map(p => {
-      if (p.id === id) {
-        return { ...p, item: editTitle, time: editTime, assignee: editAssignee }
-      }
-      return p
+  const handleSaveMinisters = () => {
+    saveProgramToFirestore({
+      officiating: linesToArray(officiatingDraft),
+      supporting: linesToArray(supportingDraft)
     })
-    saveProgramToFirestore(updated)
-    setEditingId(null)
+  }
+
+  // Toggle whether visitors can see the 2nd and 3rd faces of the program outline
+  const handleToggleProgramVisibility = () => {
+    const next = !program.showFullProgram
+    saveProgramToFirestore(
+      { showFullProgram: next },
+      next
+        ? 'Full program outline is now visible to guests.'
+        : 'Full program outline is now hidden. Guests only see the first face.'
+    )
   }
 
   // Function to permanently delete a photo from Firestore & Storage
@@ -282,121 +531,125 @@ export default function AdminPage() {
               ========================================= */}
           <section>
             <h2 className="text-2xl font-display text-emerald-green mb-6 border-b border-emerald-green/20 pb-2">Manage Program Outline</h2>
-            <div className="bg-white rounded-2xl shadow-md p-6 md:p-8 flex flex-col gap-6">
-              
-              <form onSubmit={handleAddProgramItem} className="bg-off-white p-4 rounded-xl border border-curry-gold/30 flex flex-col md:flex-row gap-3 items-center">
-                <input 
-                  type="text"
-                  placeholder="Service Item (e.g. Opening Prayer)"
-                  value={newItemTitle}
-                  onChange={(e) => setNewItemTitle(e.target.value)}
-                  className="flex-1 w-full border border-emerald-green/30 rounded-lg p-2.5 text-xs md:text-sm font-sans focus:outline-none focus:border-curry-gold"
-                />
-                <input 
-                  type="text"
-                  placeholder="Time (e.g. 11:00 AM)"
-                  value={newItemTime}
-                  onChange={(e) => setNewItemTime(e.target.value)}
-                  className="w-full md:w-32 border border-emerald-green/30 rounded-lg p-2.5 text-xs md:text-sm font-sans focus:outline-none focus:border-curry-gold"
-                />
-                <input 
-                  type="text"
-                  placeholder="Assignee (e.g. Rev. John)"
-                  value={newItemAssignee}
-                  onChange={(e) => setNewItemAssignee(e.target.value)}
-                  className="w-full md:w-44 border border-emerald-green/30 rounded-lg p-2.5 text-xs md:text-sm font-sans focus:outline-none focus:border-curry-gold"
-                />
-                <button
-                  type="submit"
-                  disabled={isSavingProgram}
-                  className="w-full md:w-auto bg-emerald-green text-off-white px-5 py-2.5 rounded-lg text-xs font-bold hover:bg-emerald-green/90 transition-colors flex items-center justify-center gap-1.5 shrink-0"
-                >
-                  <Plus className="w-4 h-4" />
-                  Add Item
-                </button>
-              </form>
+            <div className="flex flex-col gap-8">
 
-              <div className="space-y-3 max-h-[400px] overflow-y-auto pr-1">
-                {programItems.map((p) => (
-                  <div key={p.id || p.item} className="p-3.5 bg-off-white/60 border border-emerald-green/10 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                    {editingId === p.id ? (
-                      <div className="flex-1 flex flex-col sm:flex-row gap-2">
-                        <input 
-                          type="text"
-                          value={editTitle}
-                          onChange={(e) => setEditTitle(e.target.value)}
-                          className="flex-1 border border-emerald-green/30 rounded p-1.5 text-xs font-sans"
-                        />
-                        <input 
-                          type="text"
-                          value={editTime}
-                          onChange={(e) => setEditTime(e.target.value)}
-                          className="w-full sm:w-28 border border-emerald-green/30 rounded p-1.5 text-xs font-sans"
-                        />
-                        <input 
-                          type="text"
-                          value={editAssignee}
-                          onChange={(e) => setEditAssignee(e.target.value)}
-                          placeholder="Assignee"
-                          className="w-full sm:w-36 border border-emerald-green/30 rounded p-1.5 text-xs font-sans"
-                        />
-                      </div>
-                    ) : (
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between flex-1 gap-2">
-                        <span className="font-sans font-semibold text-xs md:text-sm text-emerald-green">{p.item}</span>
-                        <div className="flex items-center gap-2">
-                          {p.assignee && (
-                            <span className="bg-curry-gold/10 text-curry-gold border border-curry-gold/30 text-[10px] px-2 py-0.5 rounded-full font-sans font-bold">
-                              👤 {p.assignee}
-                            </span>
-                          )}
-                          <span className="bg-emerald-green/10 text-emerald-green text-[11px] px-2.5 py-0.5 rounded-full font-sans font-bold">
-                            {p.time}
-                          </span>
-                        </div>
-                      </div>
-                    )}
-
-                    <div className="flex items-center gap-2 self-end sm:self-center shrink-0">
-                      {editingId === p.id ? (
-                        <>
-                          <button 
-                            onClick={() => handleSaveEdit(p.id)}
-                            className="bg-emerald-green text-white p-1.5 rounded hover:bg-emerald-green/90"
-                            title="Save"
-                          >
-                            <Save className="w-4 h-4" />
-                          </button>
-                          <button 
-                            onClick={() => setEditingId(null)}
-                            className="bg-gray-400 text-white p-1.5 rounded hover:bg-gray-500"
-                            title="Cancel"
-                          >
-                            <X className="w-4 h-4" />
-                          </button>
-                        </>
-                      ) : (
-                        <>
-                          <button 
-                            onClick={() => handleStartEdit(p)}
-                            className="text-emerald-green hover:text-curry-gold p-1.5 rounded"
-                            title="Edit"
-                          >
-                            <Edit2 className="w-4 h-4" />
-                          </button>
-                          <button 
-                            onClick={() => handleDeleteProgramItem(p.id)}
-                            className="text-rosewood-pink hover:text-rosewood-pink/80 p-1.5 rounded"
-                            title="Delete"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </>
-                      )}
-                    </div>
+              {/* Visibility toggle */}
+              <div className="bg-white rounded-2xl shadow-md p-6 md:p-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="flex items-start gap-3">
+                  <div className={`w-11 h-11 rounded-full flex items-center justify-center shrink-0 ${program.showFullProgram ? 'bg-emerald-green/10' : 'bg-rosewood-pink/10'}`}>
+                    {program.showFullProgram
+                      ? <Eye className="w-5 h-5 text-emerald-green" />
+                      : <EyeOff className="w-5 h-5 text-rosewood-pink" />}
                   </div>
-                ))}
+                  <div>
+                    <h3 className="text-lg font-display text-emerald-green">Show Full Program to Guests</h3>
+                    <p className="text-[11px] md:text-xs text-emerald-green/60 mt-0.5">
+                      {program.showFullProgram
+                        ? 'ON: guests can see all three faces of the program outline.'
+                        : 'OFF: guests only see the first face, with a "available soon" message under it.'}
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={program.showFullProgram}
+                  onClick={handleToggleProgramVisibility}
+                  disabled={isSavingProgram}
+                  className="flex items-center gap-3 shrink-0 self-start md:self-center disabled:opacity-70"
+                  title="Toggle program visibility"
+                >
+                  <span className={`text-xs font-sans font-bold ${program.showFullProgram ? 'text-emerald-green' : 'text-rosewood-pink'}`}>
+                    {program.showFullProgram ? 'ON' : 'OFF'}
+                  </span>
+                  <span className={`relative inline-block w-14 h-7 rounded-full transition-colors duration-300 ${program.showFullProgram ? 'bg-emerald-green' : 'bg-gray-300'}`}>
+                    <span className={`absolute top-0.5 left-0.5 w-6 h-6 rounded-full bg-white shadow transition-transform duration-300 ${program.showFullProgram ? 'translate-x-7' : 'translate-x-0'}`} />
+                  </span>
+                </button>
               </div>
+
+              {/* Thank you note & scripture */}
+              <div className="bg-white rounded-2xl shadow-md p-6 md:p-8 flex flex-col gap-5">
+                <h3 className="text-lg font-display text-emerald-green">Thank You &amp; Scripture Details</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {detailFields.map((field) => (
+                    <div
+                      key={field.key}
+                      className={`flex flex-col gap-1 ${['quote'].includes(field.key) ? 'md:col-span-2' : ''}`}
+                    >
+                      <label className="text-xs font-sans font-semibold text-emerald-green">{field.label}</label>
+                      <input
+                        type="text"
+                        value={detailsDraft[field.key] || ''}
+                        onChange={(e) => setDetailsDraft({ ...detailsDraft, [field.key]: e.target.value })}
+                        className="border border-emerald-green/30 rounded-lg p-2.5 text-xs md:text-sm font-sans focus:outline-none focus:border-curry-gold"
+                      />
+                    </div>
+                  ))}
+                </div>
+                <button
+                  onClick={handleSaveDetails}
+                  disabled={isSavingProgram}
+                  className="self-end bg-emerald-green text-off-white px-6 py-2.5 rounded-lg text-xs font-bold hover:bg-emerald-green/90 transition-colors flex items-center gap-2 disabled:opacity-70"
+                >
+                  {isSavingProgram && <Loader2 className="w-4 h-4 animate-spin" />}
+                  Save Details
+                </button>
+              </div>
+
+              {/* Ministers */}
+              <div className="bg-white rounded-2xl shadow-md p-6 md:p-8 flex flex-col gap-5">
+                <h3 className="text-lg font-display text-emerald-green">Ministers</h3>
+                <p className="text-[11px] text-emerald-green/60 -mt-3">Enter one name per line.</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs font-sans font-semibold text-emerald-green">Officiating Ministers</label>
+                    <textarea
+                      rows={8}
+                      value={officiatingDraft}
+                      onChange={(e) => setOfficiatingDraft(e.target.value)}
+                      className="border border-emerald-green/30 rounded-lg p-2.5 text-xs md:text-sm font-sans focus:outline-none focus:border-curry-gold"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs font-sans font-semibold text-emerald-green">Supporting Ministers</label>
+                    <textarea
+                      rows={8}
+                      value={supportingDraft}
+                      onChange={(e) => setSupportingDraft(e.target.value)}
+                      className="border border-emerald-green/30 rounded-lg p-2.5 text-xs md:text-sm font-sans focus:outline-none focus:border-curry-gold"
+                    />
+                  </div>
+                </div>
+                <button
+                  onClick={handleSaveMinisters}
+                  disabled={isSavingProgram}
+                  className="self-end bg-emerald-green text-off-white px-6 py-2.5 rounded-lg text-xs font-bold hover:bg-emerald-green/90 transition-colors flex items-center gap-2 disabled:opacity-70"
+                >
+                  {isSavingProgram && <Loader2 className="w-4 h-4 animate-spin" />}
+                  Save Ministers
+                </button>
+              </div>
+
+              {/* Part 1 : Order of Service */}
+              <ItemListManager
+                title="Order of Service (Part 1)"
+                items={program.items}
+                onSave={(updated) => saveProgramToFirestore({ items: updated })}
+                saving={isSavingProgram}
+                itemPlaceholder="Service Item (e.g. Opening Prayer)"
+              />
+
+              {/* Part 2 : Order of Photography (item only, no time / assignee) */}
+              <ItemListManager
+                title="Order of Photography (Part 2)"
+                items={program.photoItems}
+                onSave={(updated) => saveProgramToFirestore({ photoItems: updated })}
+                saving={isSavingProgram}
+                itemPlaceholder="Photography Item (e.g. Couple with Parents)"
+                simple
+              />
 
             </div>
           </section>
@@ -471,6 +724,21 @@ export default function AdminPage() {
                   </button>
                   <p className="text-[10px] text-emerald-green/60">Lock this to prevent visitors from uploading photos.</p>
                 </div>
+              </div>
+
+              {/* Thank You Message toggle */}
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-sans font-semibold text-emerald-green flex items-center gap-2">
+                  <Heart className={`w-4 h-4 ${thankYouMode ? 'text-curry-gold' : 'text-emerald-green'}`} />
+                  Thank You Message
+                </label>
+                <button
+                  onClick={() => setThankYouMode(!thankYouMode)}
+                  className={`p-3 rounded-lg font-sans text-sm font-bold flex items-center justify-center gap-2 transition-colors ${thankYouMode ? 'bg-curry-gold/10 text-curry-gold border border-curry-gold/50' : 'bg-emerald-green/10 text-emerald-green border border-emerald-green/50'}`}
+                >
+                  {thankYouMode ? 'Thank You Message is ON (Click to Turn Off)' : 'Thank You Message is OFF (Click to Turn On)'}
+                </button>
+                <p className="text-[10px] text-emerald-green/60">When ON, the countdown and Confirm Attendance are hidden, and guests see a thank you message from Mr. &amp; Mrs. Quansah instead.</p>
               </div>
 
               <button 
