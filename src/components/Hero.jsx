@@ -64,7 +64,7 @@ export default function Hero() {
                   alt={heroImages[index].label}
                   className="relative w-full h-full object-cover object-top md:object-contain md:drop-shadow-2xl z-10"
                   loading="eager" // Forces immediate rendering when swapped in
-                  fetchpriority={index === 0 ? 'high' : 'low'}
+                  fetchPriority={index === 0 ? 'high' : 'low'}
                   decoding="async"
                 />
               </>

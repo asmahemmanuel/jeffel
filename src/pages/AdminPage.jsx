@@ -441,13 +441,19 @@ export default function AdminPage() {
     )
   }
 
-  // Function to permanently delete a photo from Firestore & Storage
+  // Function to permanently delete a photo from Firestore (and from Storage for older photos)
   const handleDeletePhoto = async (photoId, photoUrl) => {
     if (!window.confirm("Are you sure you want to permanently delete this photo?")) return
     
     try {
-      const photoRef = ref(storage, photoUrl)
-      await deleteObject(photoRef)
+      // Older photos may still live in Storage; new ones are stored only in Firestore
+      if (photoUrl && photoUrl.startsWith('http')) {
+        try {
+          await deleteObject(ref(storage, photoUrl))
+        } catch (storageError) {
+          console.warn('Storage file not found or already removed:', storageError)
+        }
+      }
       await deleteDoc(doc(db, 'gallery', photoId))
       toast.success('Photo deleted successfully!')
     } catch (error) {

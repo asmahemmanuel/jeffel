@@ -12,7 +12,7 @@ import {
 import { useNavigate, Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { couple } from '../data/content'
-import { db, storage } from '../firebase'
+import { db } from '../firebase'
 import {
   collection,
   addDoc,
@@ -21,12 +21,9 @@ import {
   runTransaction,
   onSnapshot,
   getDoc,
+  query,
+  orderBy,
 } from 'firebase/firestore'
-import {
-  ref,
-  uploadBytes,
-  getDownloadURL,
-} from 'firebase/storage'
 import imageCompression from 'browser-image-compression'
 import fpPromise from '@fingerprintjs/fingerprintjs' // IMPORTANT: Run `npm install @fingerprintjs/fingerprintjs`
 
@@ -70,6 +67,10 @@ export default function Countdown() {
   
   // When true (set by admin), the countdown and confirm attendance are replaced by a thank you message
   const [thankYouMode, setThankYouMode] = useState(false)
+
+  // Slideshow state (guest photos shown only when thankYouMode is ON)
+  const [slidePhotos, setSlidePhotos] = useState([])
+  const [slideIndex, setSlideIndex] = useState(0)
   
   // Track if we are currently checking the database for the fingerprint
   const [isCheckingDevice, setIsCheckingDevice] = useState(true)
@@ -148,6 +149,51 @@ export default function Countdown() {
   }, [])
 
   /* =========================================================
+     GALLERY LISTENER FOR SLIDESHOW (only when thank you mode is ON)
+     ========================================================= */
+
+  useEffect(() => {
+    if (!thankYouMode) {
+      setSlidePhotos([])
+      setSlideIndex(0)
+      return
+    }
+
+    const q = query(collection(db, 'gallery'), orderBy('createdAt', 'desc'))
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const fetched = snapshot.docs
+        .map((d) => ({ id: d.id, ...d.data() }))
+        .filter((p) => p.url)
+      setSlidePhotos(fetched)
+    }, (error) => {
+      console.error('Error fetching slideshow photos: ', error)
+    })
+
+    return () => unsubscribe()
+  }, [thankYouMode])
+
+  /* =========================================================
+     SLIDESHOW TIMER (7 seconds between pictures)
+     ========================================================= */
+
+  useEffect(() => {
+    if (!thankYouMode || slidePhotos.length < 2) return
+
+    const slideTimer = setInterval(() => {
+      setSlideIndex((prev) => (prev + 1) % slidePhotos.length)
+    }, 7000)
+
+    return () => clearInterval(slideTimer)
+  }, [thankYouMode, slidePhotos.length])
+
+  // Keep the index valid if photos get deleted
+  useEffect(() => {
+    if (slideIndex >= slidePhotos.length && slidePhotos.length > 0) {
+      setSlideIndex(0)
+    }
+  }, [slidePhotos.length, slideIndex])
+
+  /* =========================================================
      COUNTDOWN TIMER
      ========================================================= */
 
@@ -162,7 +208,7 @@ export default function Countdown() {
   }, [targetDate])
 
   /* =========================================================
-     PHOTO UPLOAD
+     PHOTO UPLOAD (saved directly in Firestore, no Storage bucket)
      ========================================================= */
 
   const handleUploadClick = () => {
@@ -180,21 +226,22 @@ export default function Countdown() {
 
     try {
       for (const file of files) {
+        // Shrink dimensions + file size while keeping good visual quality
         const options = {
-          maxSizeMB: 0.2, 
+          maxSizeMB: 0.25,
           maxWidthOrHeight: 1080,
           useWebWorker: true,
-          initialQuality: 0.7,
+          initialQuality: 0.8,
+          fileType: 'image/webp',
         }
 
         const compressedFile = await imageCompression(file, options)
-        const fileRef = ref(storage, `gallery/${Date.now()}_${file.name}`)
 
-        await uploadBytes(fileRef, compressedFile)
-        const downloadURL = await getDownloadURL(fileRef)
+        // Convert the shrunk image to a link (data URL) that lives inside Firestore
+        const imageLink = await imageCompression.getDataUrlFromFile(compressedFile)
 
         await addDoc(collection(db, 'gallery'), {
-          url: downloadURL,
+          url: imageLink,
           createdAt: serverTimestamp(),
         })
       }
@@ -354,9 +401,11 @@ export default function Countdown() {
               Thank you for celebrating with us, for your presence, your prayers, your gifts and your love.
               You made our special day even more beautiful, and we are truly grateful.
               May God bless you richly.
-              <br />
-              <p>Please tap on the button below to upload pictures you took with us.</p>
             </p>
+            <p className="font-sans text-sm md:text-base text-emerald-green/80 leading-relaxed mt-3">
+              Please tap on the button below to upload pictures you took with us.
+            </p>
+
             <p className="font-display text-curry-gold text-base md:text-xl mt-4 md:mt-5">
               With love, Mr. &amp; Mrs. Quansah
             </p>
@@ -465,6 +514,32 @@ export default function Countdown() {
           </motion.div>
           )}
         </div>
+
+        {/* GUEST PHOTO SLIDESHOW (only visible when Thank You Message is ON) */}
+        {thankYouMode && slidePhotos.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="mt-8 md:mt-10 w-full max-w-[320px] md:max-w-md"
+          >
+            <div className="relative w-full aspect-[4/3] overflow-hidden rounded-2xl shadow-xl border-2 border-curry-gold/50 bg-off-white">
+              <AnimatePresence initial={false}>
+                <motion.img
+                  key={slidePhotos[slideIndex]?.id}
+                  src={slidePhotos[slideIndex]?.url}
+                  alt="Guest memory with the couple"
+                  initial={{ x: '100%' }}
+                  animate={{ x: 0 }}
+                  exit={{ x: '-100%' }}
+                  transition={{ duration: 0.8, ease: 'easeInOut' }}
+                  className="absolute inset-0 w-full h-full object-contain"
+                  decoding="async"
+                />
+              </AnimatePresence>
+            </div>
+          </motion.div>
+        )}
       </div>
 
       <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }} className="mt-6 max-w-xl mx-auto bg-off-white border-2 border-curry-gold/50 rounded-2xl p-6 md:p-8 shadow-xl text-center relative overflow-hidden">
