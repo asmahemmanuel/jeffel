@@ -8,6 +8,8 @@ import {
   ArrowDown,
   Lock,
   Heart,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react'
 import { useNavigate, Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
@@ -55,6 +57,17 @@ function getTimeLeft(target) {
   }
 }
 
+/* Slideshow slide animation (direction aware: 1 = next, -1 = previous) */
+const slideVariants = {
+  enter: (direction) => ({ x: direction >= 0 ? '100%' : '-100%', opacity: 0 }),
+  center: { x: 0, opacity: 1 },
+  exit: (direction) => ({ x: direction >= 0 ? '-100%' : '100%', opacity: 0 }),
+}
+
+/* Firestore documents are limited to ~1 MiB. A base64 image string must stay
+   safely under that limit, so we cap the size of the saved string here. */
+const MAX_DATA_URL_LENGTH = 950000
+
 export default function Countdown() {
   const [targetDate, setTargetDate] = useState(couple.countdownTarget)
   const [timeLeft, setTimeLeft] = useState(
@@ -71,6 +84,7 @@ export default function Countdown() {
   // Slideshow state (guest photos shown only when thankYouMode is ON)
   const [slidePhotos, setSlidePhotos] = useState([])
   const [slideIndex, setSlideIndex] = useState(0)
+  const [slideDirection, setSlideDirection] = useState(1)
   
   // Track if we are currently checking the database for the fingerprint
   const [isCheckingDevice, setIsCheckingDevice] = useState(true)
@@ -173,18 +187,38 @@ export default function Countdown() {
   }, [thankYouMode])
 
   /* =========================================================
-     SLIDESHOW TIMER (7 seconds between pictures)
+     SLIDESHOW CONTROLS
+     ========================================================= */
+
+  const goToNextSlide = () => {
+    if (slidePhotos.length < 2) return
+    setSlideDirection(1)
+    setSlideIndex((prev) => (prev + 1) % slidePhotos.length)
+  }
+
+  const goToPrevSlide = () => {
+    if (slidePhotos.length < 2) return
+    setSlideDirection(-1)
+    setSlideIndex((prev) => (prev - 1 + slidePhotos.length) % slidePhotos.length)
+  }
+
+  /* =========================================================
+     SLIDESHOW TIMER (5 seconds between pictures)
+     Restarts every time the slide changes, so clicking the
+     next/previous buttons gives the guest a full 5 seconds
+     on the new picture.
      ========================================================= */
 
   useEffect(() => {
     if (!thankYouMode || slidePhotos.length < 2) return
 
-    const slideTimer = setInterval(() => {
+    const slideTimer = setTimeout(() => {
+      setSlideDirection(1)
       setSlideIndex((prev) => (prev + 1) % slidePhotos.length)
-    }, 7000)
+    }, 5000)
 
-    return () => clearInterval(slideTimer)
-  }, [thankYouMode, slidePhotos.length])
+    return () => clearTimeout(slideTimer)
+  }, [thankYouMode, slidePhotos.length, slideIndex])
 
   // Keep the index valid if photos get deleted
   useEffect(() => {
@@ -209,12 +243,44 @@ export default function Countdown() {
 
   /* =========================================================
      PHOTO UPLOAD (saved directly in Firestore, no Storage bucket)
+     Higher resolution + higher quality so pictures stay sharp.
      ========================================================= */
 
   const handleUploadClick = () => {
     if (fileInputRef.current) {
       fileInputRef.current.click()
     }
+  }
+
+  // Compress an image while keeping it sharp. If the result is still too big
+  // for a Firestore document, retry with slightly smaller settings.
+  const compressForFirestore = async (file) => {
+    const attempts = [
+      { maxSizeMB: 0.65, maxWidthOrHeight: 1920, initialQuality: 0.92 },
+      { maxSizeMB: 0.6, maxWidthOrHeight: 1600, initialQuality: 0.88 },
+      { maxSizeMB: 0.5, maxWidthOrHeight: 1400, initialQuality: 0.85 },
+      { maxSizeMB: 0.4, maxWidthOrHeight: 1200, initialQuality: 0.8 },
+    ]
+
+    let lastLink = null
+
+    for (const attempt of attempts) {
+      const compressedFile = await imageCompression(file, {
+        ...attempt,
+        useWebWorker: true,
+        fileType: 'image/webp',
+        alwaysKeepResolution: false,
+      })
+
+      const link = await imageCompression.getDataUrlFromFile(compressedFile)
+      lastLink = link
+
+      if (link.length <= MAX_DATA_URL_LENGTH) {
+        return link
+      }
+    }
+
+    return lastLink
   }
 
   const handleFileChange = async (e) => {
@@ -226,19 +292,8 @@ export default function Countdown() {
 
     try {
       for (const file of files) {
-        // Shrink dimensions + file size while keeping good visual quality
-        const options = {
-          maxSizeMB: 0.25,
-          maxWidthOrHeight: 1080,
-          useWebWorker: true,
-          initialQuality: 0.8,
-          fileType: 'image/webp',
-        }
-
-        const compressedFile = await imageCompression(file, options)
-
-        // Convert the shrunk image to a link (data URL) that lives inside Firestore
-        const imageLink = await imageCompression.getDataUrlFromFile(compressedFile)
+        // Convert the shrunk (but still sharp) image to a link (data URL) stored inside Firestore
+        const imageLink = await compressForFirestore(file)
 
         await addDoc(collection(db, 'gallery'), {
           url: imageLink,
@@ -515,28 +570,53 @@ export default function Countdown() {
           )}
         </div>
 
-        {/* GUEST PHOTO SLIDESHOW (only visible when Thank You Message is ON) */}
+        {/* GUEST PHOTO SLIDESHOW (only visible when Thank You Message is ON)
+            No frame, larger size, 5-second timer, next/previous buttons */}
         {thankYouMode && slidePhotos.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="mt-8 md:mt-10 w-full max-w-[320px] md:max-w-md"
+            className="mt-8 md:mt-10 w-full max-w-[96vw] md:max-w-4xl relative"
           >
-            <div className="relative w-full aspect-[4/3] overflow-hidden rounded-2xl shadow-xl border-2 border-curry-gold/50 bg-off-white">
-              <AnimatePresence initial={false}>
+            <div className="relative w-full aspect-[4/3] md:aspect-[16/10] overflow-hidden">
+              <AnimatePresence initial={false} custom={slideDirection}>
                 <motion.img
                   key={slidePhotos[slideIndex]?.id}
                   src={slidePhotos[slideIndex]?.url}
                   alt="Guest memory with the couple"
-                  initial={{ x: '100%' }}
-                  animate={{ x: 0 }}
-                  exit={{ x: '-100%' }}
-                  transition={{ duration: 0.8, ease: 'easeInOut' }}
+                  custom={slideDirection}
+                  variants={slideVariants}
+                  initial="enter"
+                  animate="center"
+                  exit="exit"
+                  transition={{ duration: 0.7, ease: 'easeInOut' }}
                   className="absolute inset-0 w-full h-full object-contain"
                   decoding="async"
                 />
               </AnimatePresence>
+
+              {slidePhotos.length > 1 && (
+                <>
+                  <button
+                    type="button"
+                    onClick={goToPrevSlide}
+                    aria-label="Previous photo"
+                    className="absolute left-1 md:left-3 top-1/2 -translate-y-1/2 z-10 w-9 h-9 md:w-12 md:h-12 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center transition-colors duration-200"
+                  >
+                    <ChevronLeft className="w-5 h-5 md:w-7 md:h-7" />
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={goToNextSlide}
+                    aria-label="Next photo"
+                    className="absolute right-1 md:right-3 top-1/2 -translate-y-1/2 z-10 w-9 h-9 md:w-12 md:h-12 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center transition-colors duration-200"
+                  >
+                    <ChevronRight className="w-5 h-5 md:w-7 md:h-7" />
+                  </button>
+                </>
+              )}
             </div>
           </motion.div>
         )}

@@ -32,7 +32,7 @@ export default function GalleryPage() {
     return () => unsubscribe()
   }, [])
 
-  // Instantly hide any broken image placeholders if the file was deleted from Storage
+  // Instantly hide any broken image placeholders if the image data is missing or invalid
   const handleImageError = (photoId) => {
     setPhotos((prevPhotos) => prevPhotos.filter((photo) => photo.id !== photoId))
   }
@@ -77,19 +77,21 @@ export default function GalleryPage() {
             <p className="font-sans text-sm">No photos shared yet — be the first!</p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+          /* Full-size, uncropped photos: each image keeps its own natural
+             shape (portrait, landscape or square) inside a column layout. */
+          <div className="columns-2 sm:columns-3 md:columns-4 gap-3">
             {photos.map((photo) => (
               <motion.div
                 key={photo.id}
-                initial={{ opacity: 0, scale: 0.9 }}
+                initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.4 }}
-                className="aspect-square overflow-hidden rounded-lg shadow-sm group"
+                className="mb-3 break-inside-avoid overflow-hidden rounded-lg shadow-sm"
               >
                 <img
                   src={photo.url} 
                   alt="Wedding memory"
-                  className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500"
+                  className="block w-full h-auto"
                   loading="lazy"
                   decoding="async"
                   onError={() => handleImageError(photo.id)} // Triggers if the image is missing

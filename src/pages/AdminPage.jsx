@@ -769,13 +769,14 @@ export default function AdminPage() {
                 <p className="text-emerald-green/60 font-sans">No photos have been uploaded yet.</p>
               </div>
             ) : (
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              /* Full-size, uncropped photos: each image keeps its own natural shape */
+              <div className="columns-2 md:columns-3 lg:columns-4 gap-4">
                 {photos.map((photo) => (
-                  <div key={photo.id} className="relative group bg-white p-2 rounded-xl shadow-sm border border-emerald-green/10">
+                  <div key={photo.id} className="relative group bg-white p-2 rounded-xl shadow-sm border border-emerald-green/10 mb-4 break-inside-avoid">
                     <img 
                       src={photo.url} 
                       alt="Uploaded by guest" 
-                      className="w-full h-32 md:h-40 object-cover rounded-lg"
+                      className="block w-full h-auto rounded-lg"
                       loading="lazy"
                       decoding="async"
                     />
